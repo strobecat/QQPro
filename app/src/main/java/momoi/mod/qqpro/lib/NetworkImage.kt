@@ -1,0 +1,59 @@
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.widget.ImageView
+import com.tencent.qqnt.kernel.nativeinterface.PicElement
+import momoi.mod.qqpro.Utils
+import momoi.mod.qqpro.child
+import momoi.mod.qqpro.msg.getImageUrl
+import java.io.BufferedOutputStream
+import java.io.InputStream
+import java.net.HttpURLConnection
+import java.net.URL
+import kotlin.concurrent.thread
+
+fun ImageView.loadPicElement(pic: PicElement) {
+    val cacheFile = context.externalCacheDir!!.child("${pic.md5HexStr}.jpg")
+    cacheFile.parentFile?.mkdirs()
+    if (cacheFile.exists()) {
+        Utils.log("Load Image from disk ${cacheFile.path}")
+        setImageBitmap(BitmapFactory.decodeFile(cacheFile.absolutePath))
+    } else {
+        downloadImage(pic.getImageUrl()) { bitmap ->
+            post {
+                setImageBitmap(bitmap)
+            }
+            BufferedOutputStream(cacheFile.outputStream()).use {
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+            }
+        }
+    }
+}
+
+inline fun downloadImage(url: String, crossinline callback: (Bitmap)->Unit) {
+    thread {
+        var connection: HttpURLConnection? = null
+        var inputStream: InputStream? = null
+
+        try {
+            connection = URL(url).openConnection() as HttpURLConnection
+            connection.connectTimeout = 10_000 // 10秒超时
+            connection.readTimeout = 10_000
+            connection.requestMethod = "GET"
+            connection.doInput = true
+            Utils.log("Download Image From: $url")
+            connection.connect()
+            if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                inputStream = connection.inputStream
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                callback(bitmap)
+            } else {
+                Utils.log("Download Image Failed! $url")
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            inputStream?.close()
+            connection?.disconnect()
+        }
+    }
+}

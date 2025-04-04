@@ -1,0 +1,24 @@
+package momoi.mod.qqpro.lib
+
+import android.widget.TextView
+
+fun <T : TextView> T.textSize(size: Float) = apply {
+    textSize = size
+}
+
+fun <T : TextView> T.textColor(color: Int) = apply {
+    setTextColor(color)
+}
+fun <T : TextView> T.gravity(value: Int) = apply {
+    gravity = value
+}
+
+fun <T : TextView> T.text(text: String) = apply {
+    if (text != this.text.toString()) {
+        this.text = text
+    }
+}
+
+fun <T : TextView> T.text(state: State<String>) = apply {
+    state.observe { post { text(it) } }
+}
