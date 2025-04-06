@@ -7,6 +7,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import com.tencent.qqnt.kernel.nativeinterface.Contact
 import com.tencent.qqnt.kernel.nativeinterface.ReplyElement
 import com.tencent.watch.aio_impl.data.WatchAIOMsgItem
 import com.tencent.watch.aio_impl.ui.cell.base.BaseWatchItemCell
@@ -40,12 +41,18 @@ import momoi.mod.qqpro.warp
 class Mikoto10031(context: Context) : AIOCellGroupWidget(context) {
     var replyView: ReplyView? = null
 
-    fun initReplyView() {
+    fun initReplyView(contact: Contact, replyElement: ReplyElement) {
         if (replyView == null) {
             replyView = create(context)
             val warp = contentWidget.warp()
             warp.addView(replyView, 0)
         }
+        replyView!!.visibility = View.VISIBLE
+        replyView!!.loadData(contact, replyElement)
+    }
+
+    fun recycler() {
+        replyView?.visibility = View.GONE
     }
 }
 
@@ -67,11 +74,8 @@ class Mikoto10032 : BaseWatchItemCell() {
         super.i(view, item, p3, p4, p5, p6)
         val widget = view as? Mikoto10031 ?: return
         (item.d.elements.find { it.replyElement != null }?.replyElement)?.let { reply ->
-            widget.initReplyView()
-            widget.replyView?.loadData(this.f().l(), reply)
-        } ?: run {
-            widget.replyView?.visibility = View.GONE
-        }
+            widget.initReplyView(this.f().l(), reply)
+        } ?: widget.recycler()
         (widget.contentWidget as? TextView)?.layoutParams?.let {
             it.width = WRAP
             it.height = WRAP
