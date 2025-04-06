@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import momoi.mod.qqpro.findMethod
 
-class GroupScope(val group: ViewGroup) {
+open class GroupScope(val group: ViewGroup) {
     inline fun <reified T : View> add(): T {
         val view = create<T>(
             group.context,

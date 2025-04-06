@@ -41,12 +41,16 @@ fun <T : View> T.padding(value: Int) = padding(value, value, value, value)
 fun <T : View> T.background(color: Int) = apply {
     setBackgroundColor(color)
 }
+fun <T : View> T.background(color: Long) = apply {
+    setBackgroundColor(color.toInt())
+}
 fun <T : View> T.size(width: Int = layoutParams.width, height: Int = layoutParams.height) = apply {
     layoutParams.width = width
     layoutParams.height = height
 }
 fun <T : View> T.size(value: Int) = size(value, value)
 fun <T : View> T.width(value: Int) = size(width = value)
+fun <T : View> T.height(value: Int) = size(height = value)
 fun <T : View> T.id(value: Int) = apply {
     id = value
 }
