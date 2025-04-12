@@ -34,8 +34,8 @@ class MixinProcessor(
     fun processMixin() {
         val (srcDex, trgDex, targetZipFile) = loadDexFiles()
         val mixinClasses = findMixinClasses(srcDex, trgDex)
-        val modifiedClasses = processClasses(srcDex, trgDex, mixinClasses)
-        writeDexOutput(trgDex, modifiedClasses, targetZipFile)
+        val (newClassesDex, modifiedClasses) = processClasses(srcDex, trgDex, mixinClasses)
+        writeDexOutput(trgDex, newClassesDex, modifiedClasses, targetZipFile)
     }
 
     private fun loadDexFiles(): Triple<DexFile, DexFile, ZipFile> {
@@ -59,11 +59,11 @@ class MixinProcessor(
         return Triple(srcDex, trgDex, targetZipFile)
     }
 
-    private fun findMixinClasses(srcDex: DexFile, trgDex: DexFile): Map<ClassDef, ClassDef> {
+    private fun findMixinClasses(srcDex: DexFile, targetDex: DexFile): Map<ClassDef, ClassDef> {
         val mixinClasses = mutableMapOf<ClassDef, ClassDef>()
         srcDex.classes.forEach { srcDef ->
             if (srcDef.annotations.any { it.type == "Lmomoi/anno/mixin/Mixin;" }) {
-                mixinClasses[srcDef] = srcDef.superclass?.let { s -> trgDex.findClass(s) }
+                mixinClasses[srcDef] = srcDef.superclass?.let { s -> targetDex.findClass(s) }
                     ?: throw FileNotFoundException(
                         "Cannot find mixin ${srcDef.type} target class ${srcDef.superclass}"
                     )
@@ -75,10 +75,10 @@ class MixinProcessor(
 
     private fun processClasses(
         srcDex: DexFile,
-        trgDex: DexFile,
+        targetDex: DexFile,
         mixinClasses: Map<ClassDef, ClassDef>
-    ): Map<String, ClassDef> {
-        val newDex = MutableDexFile()
+    ): Pair<MutableDexFile, Map<String, ClassDef>> {
+        val newClassesDex = MutableDexFile()
         val changedDef = mutableMapOf<ClassDef, ClassDef>()
         val modifiedClasses = mutableMapOf<String, ClassDef>()
 
@@ -90,26 +90,26 @@ class MixinProcessor(
 
             when {
                 !mixinClasses.containsKey(srcDef) -> {
-                    if (trgDex.findClass(srcDef.type) == null) {
-                        newDex.classes.add(content.toClassDef()!!)
+                    if (targetDex.findClass(srcDef.type) == null) {
+                        newClassesDex.classes.add(content.toClassDef()!!)
                     }
                 }
                 else -> mixinToTargetClass(srcDef, content, mixinClasses, changedDef, modifiedClasses)
             }
         }
 
-        return modifiedClasses
+        return newClassesDex to modifiedClasses
     }
 
     private fun mixinToTargetClass(
         srcDef: ClassDef,
         content: String,
         mixinClasses: Map<ClassDef, ClassDef>,
-        changedDef: MutableMap<ClassDef, ClassDef>,
+        lastClassesMap: MutableMap<ClassDef, ClassDef>,
         modifiedClasses: MutableMap<String, ClassDef>
     ) {
         val rawTrgDef = mixinClasses[srcDef]!!
-        val trgDef = changedDef[rawTrgDef] ?: rawTrgDef
+        val trgDef = lastClassesMap[rawTrgDef] ?: rawTrgDef
         val srcSmali = Smali(content)
         val trgSmali = Smali(trgDef.toSmali())
 
@@ -117,7 +117,7 @@ class MixinProcessor(
         processFields(srcSmali, trgSmali)
 
         val newTrgDef = trgSmali.toText().toClassDef()!!
-        changedDef[trgDef] = newTrgDef
+        lastClassesMap[trgDef] = newTrgDef
         modifiedClasses[newTrgDef.type] = newTrgDef
     }
 
@@ -163,8 +163,8 @@ class MixinProcessor(
         }
     }
 
-    private fun writeDexOutput(trgDex: DexFile, modifiedClasses: Map<String, ClassDef>, targetZipFile: ZipFile) {
-        val rewriter = createDexRewriter(modifiedClasses)
+    private fun writeDexOutput(trgDex: DexFile, newDex: DexFile, modifiedClasses: Map<String, ClassDef>, targetZipFile: ZipFile) {
+        val rewriter = createDexRewriter(newDex, modifiedClasses)
         info("Saving dex...")
         val namer = BasicDexFileNamer()
         val outputDexDir = project.projectDir.child("build/mixinDex")
@@ -189,7 +189,7 @@ class MixinProcessor(
         )
     }
 
-    private fun createDexRewriter(modifiedClasses: Map<String, ClassDef>): DexRewriter {
+    private fun createDexRewriter(newClassesDex: DexFile, modifiedClasses: Map<String, ClassDef>): DexRewriter {
         return DexRewriter(object : RewriterModule() {
             override fun getDexFileRewriter(rewriters: Rewriters): Rewriter<DexFile?> {
                 return object : DexFileRewriter(rewriters) {
@@ -199,6 +199,8 @@ class MixinProcessor(
                                 value.opcodes,
                                 buildList {
                                     addAll(value.classes)
+                                    addAll(newClassesDex.classes)
+
                                     val types = modifiedClasses.keys
                                     removeAll { it.type in types }
                                     addAll(modifiedClasses.values)

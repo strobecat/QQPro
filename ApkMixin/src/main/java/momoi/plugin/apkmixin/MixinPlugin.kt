@@ -29,25 +29,30 @@ class MixinPlugin : Plugin<Project> {
             val targetApkName = Config.targetApk ?: throw IllegalArgumentException("targetApk must not be null")
             it.mixinAppDex = project.fileTree("build/intermediates/dex/release/mergeDexRelease")
             it.targetAppFile = project.layout.projectDirectory.dir("mixin").file(targetApkName)
+            it.doLast {
+                createMetadata(project)
+            }
         }
     }
 
     private fun createMixinDebugTask(project: Project) {
-        project.tasks.create("MixinAPK-debug") {
+        project.tasks.create("MixinApk-debug") {
             it.dependsOn("MixinApk")
             it.doLast {
                 processManifest(project, isDebug = true)
                 sign(project)
+                createMetadata(project, "signed.apk")
             }
         }
     }
 
     private fun createMixinReleaseTask(project: Project) {
-        project.tasks.create("MixinAPK-release") {
+        project.tasks.create("MixinApk-release") {
             it.dependsOn("MixinApk")
             it.doLast {
                 processManifest(project, isDebug = false)
                 sign(project)
+                createMetadata(project, "signed.apk")
             }
         }
     }
@@ -73,6 +78,49 @@ class MixinPlugin : Plugin<Project> {
         ))
         project.projectDir.child("dist/unsign.apk").delete()
     }
+
+    private fun createMetadata(
+        project: Project,
+        fileName: String = "mixin.apk"
+    ) {
+        createRedirectFile(project)
+        createOutputMetadataFile(project, fileName)
+    }
+
+    private fun createRedirectFile(project: Project) {
+        project.projectDir.child("build/intermediates/apk_ide_redirect_file/debug/createDebugApkListingFileRedirect/redirect.txt")
+            .writeText("""
+                #- File Locator -
+                listingFile=../../../../../dist/output-metadata.json
+            """.trimIndent())
+    }
+
+    private fun createOutputMetadataFile(
+        project: Project,
+        fileName: String
+    ) {
+        project.projectDir.child("dist/output-metadata.json").writeText("""
+            {
+              "version": 3,
+              "artifactType": {
+                "type": "APK",
+                "kind": "Directory"
+              },
+              "applicationId": "com.tencent.qqlite",
+              "variantName": "debug",
+              "elements": [
+                {
+                  "type": "SINGLE",
+                  "filters": [],
+                  "attributes": [],
+                  "outputFile": "$fileName"
+                }
+              ],
+              "elementType": "File",
+              "minSdkVersionForDexing": 24
+            }
+        """.trimIndent())
+    }
 }
 
 abstract class MixinApkTask: DefaultTask() {
@@ -93,43 +141,6 @@ abstract class MixinApkTask: DefaultTask() {
     fun execute() {
         val processor = MixinProcessor(project, mixinAppDex.singleFile.parentFile, targetAppFile.asFile)
         processor.processMixin()
-        createMetadata(project)
     }
 
-    private fun createMetadata(project: Project) {
-        createRedirectFile(project)
-        createOutputMetadataFile(project)
-    }
-
-    private fun createRedirectFile(project: Project) {
-        project.projectDir.child("build/intermediates/apk_ide_redirect_file/debug/createDebugApkListingFileRedirect/redirect.txt")
-            .writeText("""
-                #- File Locator -
-                listingFile=../../../../../dist/output-metadata.json
-            """.trimIndent())
-    }
-
-    private fun createOutputMetadataFile(project: Project) {
-        project.projectDir.child("dist/output-metadata.json").writeText("""
-            {
-              "version": 3,
-              "artifactType": {
-                "type": "APK",
-                "kind": "Directory"
-              },
-              "applicationId": "com.tencent.qqlite",
-              "variantName": "debug",
-              "elements": [
-                {
-                  "type": "SINGLE",
-                  "filters": [],
-                  "attributes": [],
-                  "outputFile": "mixin.apk"
-                }
-              ],
-              "elementType": "File",
-              "minSdkVersionForDexing": 24
-            }
-        """.trimIndent())
-    }
 }
