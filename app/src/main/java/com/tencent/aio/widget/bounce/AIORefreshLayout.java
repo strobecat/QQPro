@@ -4,4 +4,5 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class AIORefreshLayout {
     public RecyclerView o;
+
 }

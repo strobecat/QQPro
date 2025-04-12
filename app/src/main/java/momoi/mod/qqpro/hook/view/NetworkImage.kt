@@ -11,6 +11,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.concurrent.thread
 
+//TODO 优化逻辑
 fun ImageView.loadPicElement(pic: PicElement) {
     val cacheFile = context.externalCacheDir!!.child("${pic.md5HexStr}.jpg")
     cacheFile.parentFile?.mkdirs()
@@ -19,24 +20,42 @@ fun ImageView.loadPicElement(pic: PicElement) {
         setImageBitmap(BitmapFactory.decodeFile(cacheFile.absolutePath))
     } else {
         downloadImage(pic.getImageUrl()) { bitmap ->
-            post {
-                setImageBitmap(bitmap)
-            }
-            BufferedOutputStream(cacheFile.outputStream()).use {
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+            if (bitmap == null) {
+                val error = context.externalCacheDir!!.child("error.jpg")
+                if (error.exists()) {
+                    post {
+                        setImageBitmap(BitmapFactory.decodeFile(error.absolutePath))
+                    }
+                } else {
+                    downloadImage("https://i0.hdslb.com/bfs/new_dyn/e8907352f1c8be0ea696c1447723f6091769278028.png") { errorBitmap ->
+                        post {
+                            setImageBitmap(errorBitmap)
+                        }
+                        BufferedOutputStream(error.outputStream()).use {
+                            errorBitmap?.compress(Bitmap.CompressFormat.JPEG, 100, it)
+                        }
+                    }
+                }
+            } else {
+                post {
+                    setImageBitmap(bitmap)
+                }
+                BufferedOutputStream(cacheFile.outputStream()).use {
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+                }
             }
         }
     }
 }
 
-inline fun downloadImage(url: String, crossinline callback: (Bitmap)->Unit) {
+inline fun downloadImage(url: String, crossinline callback: (Bitmap?) -> Unit) {
     thread {
         var connection: HttpURLConnection? = null
         var inputStream: InputStream? = null
 
         try {
             connection = URL(url).openConnection() as HttpURLConnection
-            connection.connectTimeout = 10_000 // 10秒超时
+            connection.connectTimeout = 60_000 // 60秒超时
             connection.readTimeout = 10_000
             connection.requestMethod = "GET"
             connection.doInput = true
@@ -47,9 +66,11 @@ inline fun downloadImage(url: String, crossinline callback: (Bitmap)->Unit) {
                 val bitmap = BitmapFactory.decodeStream(inputStream)
                 callback(bitmap)
             } else {
+                callback(null)
                 Utils.log("Download Image Failed! $url")
             }
         } catch (e: Exception) {
+            callback(null)
             e.printStackTrace()
         } finally {
             inputStream?.close()

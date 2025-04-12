@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.tencent.qqnt.watch.selftab.ui.SelfFragment
 import momoi.anno.mixin.Mixin
-import momoi.mod.qqpro.api.QQInfo
 
 @Mixin
 class 版权信息 : SelfFragment() {
@@ -20,7 +19,22 @@ class 版权信息 : SelfFragment() {
     ): View {
         val result = super.Y(inflater, container, savedInstanceState)
         val tv = result.findViewById<TextView>(2114521808)
-        tv.text = "QQPro - v1.1\n\n更新日志：\n修复了回复显示的一个bug，添加了缩放设置.\n2025/04/06"
+        tv.text = buildString {
+            appendLine("QQPro - v1.2")
+            appendLine()
+            appendLine("更新日志：")
+            appendLine("回复消息定位")
+            appendLine("修复回复显示bug")
+            appendLine("消息长按菜单背景透明")
+            appendLine("聊天记录图片加载失败提示")
+            appendLine("移除超级表情放大动画")
+            appendLine("语音通话可使用蓝牙耳机")
+            appendLine("调整气泡文本大小和边距")
+            appendLine("圆屏查看图片时添加边距")
+            appendLine()
+            appendLine("交流群：260743206")
+            appendLine("2025/04/12")
+        }
         return result
     }
 }

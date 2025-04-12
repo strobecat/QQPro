@@ -6,8 +6,6 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 
-import momoi.mod.qqpro.lib.MutableState;
-
 public class AIOCellGroupWidget extends FrameLayout {
     public AIOCellGroupWidget(@NonNull Context context) {
         super(context);

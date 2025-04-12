@@ -39,6 +39,6 @@ android {
 dependencies {
     compileOnly(libs.androidx.fragment)
     implementation(project(":ApkMixin-annotation"))
-    compileOnly(libs.androidx.constraintlayout)
     compileOnly(libs.androidx.recyclerview)
+    compileOnly(libs.androidx.constraintlayout)
 }

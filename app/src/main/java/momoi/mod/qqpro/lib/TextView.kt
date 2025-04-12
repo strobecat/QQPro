@@ -19,7 +19,3 @@ fun <T : TextView> T.text(text: String) = apply {
         this.text = text
     }
 }
-
-fun <T : TextView> T.text(state: State<String>) = apply {
-    state.observe { post { text(it) } }
-}

@@ -2,18 +2,13 @@ package momoi.mod.qqpro.hook
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.ListView
 import android.widget.TextView
-import androidx.appcompat.widget.AppCompatImageView
-import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
@@ -27,19 +22,11 @@ import com.tencent.watch.aio_impl.data.WatchAIOMsgItem
 import com.tencent.watch.aio_impl.ui.cell.base.BaseWatchItemCell
 import com.tencent.watch.aio_impl.ui.cell.unsupport.WatchToQQViewMsgItem
 import com.tencent.watch.aio_impl.ui.widget.AIOCellGroupWidget
-import com.tencent.watch.aio_impl.ui.widget.RoundBubbleImageView
 import loadPicElement
 import momoi.anno.mixin.Mixin
-import momoi.mod.qqpro.Colors
-import momoi.mod.qqpro.MsgUtil
-import momoi.mod.qqpro.Utils
-import momoi.mod.qqpro.asGroup
 import momoi.mod.qqpro.lib.FILL
-import momoi.mod.qqpro.lib.MutableState
-import momoi.mod.qqpro.lib.ReplyView
-import momoi.mod.qqpro.lib.WRAP
+import momoi.mod.qqpro.hook.view.ReplyView
 import momoi.mod.qqpro.lib.background
-import momoi.mod.qqpro.lib.child
 import momoi.mod.qqpro.lib.clickable
 import momoi.mod.qqpro.lib.content
 import momoi.mod.qqpro.lib.create
@@ -50,7 +37,6 @@ import momoi.mod.qqpro.lib.id
 import momoi.mod.qqpro.lib.layoutParams
 import momoi.mod.qqpro.lib.linearLayout
 import momoi.mod.qqpro.lib.margin
-import momoi.mod.qqpro.lib.marginHorizontal
 import momoi.mod.qqpro.lib.marginVertical
 import momoi.mod.qqpro.lib.padding
 import momoi.mod.qqpro.lib.paddingHorizontal
@@ -80,12 +66,14 @@ class DetailFragment(private val contact: Contact, private val data: MultiMsgDat
         setStyle(STYLE_NO_TITLE, 2115174655)
     }
 
-    private val stateMsgList = MutableState(listOf<MsgRecord>())
+    private val mMsgList = mutableListOf<MsgRecord>()
+    private lateinit var mRv: RecyclerView
+    @SuppressLint("NotifyDataSetChanged")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         data.getDetail {
-            view.post {
-                stateMsgList.update(it)
-            }
+            mMsgList.clear()
+            mMsgList.addAll(it)
+            mRv.adapter?.notifyDataSetChanged()
         }
     }
 
@@ -107,11 +95,11 @@ class DetailFragment(private val contact: Contact, private val data: MultiMsgDat
                     .gravity(Gravity.CENTER)
                     .textColor(0xFF_FFFFFF.toInt())
                     .clickable { dismiss() }
-                add<RecyclerView>()
+                mRv = add<RecyclerView>()
                     .linearLayout()
                     .layoutParams(LinearLayout.LayoutParams(FILL, 0, 1f))
                     .content(
-                        state = stateMsgList,
+                        data = mMsgList,
                         factory = {
                             create<LinearLayout>(this)
                                 .vertical()
