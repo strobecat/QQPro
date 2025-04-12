@@ -24,11 +24,9 @@ dependencies {
     implementation("org.smali:smali:2.5.2")
     //noinspection UseTomlInstead
     implementation("org.smali:baksmali:2.5.2")
-    /*
     implementation(fileTree("./libs") {
         include("*.jar")
     })
-     */
 }
 gradlePlugin {
     plugins {

@@ -1,5 +1,7 @@
 package momoi.plugin.apkmixin
 
+import com.android.apksigner.ApkSignerTool
+import com.wind.meditor.ManifestEditorMain
 import momoi.plugin.apkmixin.utils.Smali
 import momoi.plugin.apkmixin.utils.ZipUtil
 import momoi.plugin.apkmixin.utils.child
@@ -13,7 +15,7 @@ import java.io.File
 import java.io.FileNotFoundException
 
 class MixinPlugin : Plugin<Project> {
-
+    //TODO 写得一坨 有机会一定要写漂亮一点
     override fun apply(project: Project) {
         project.tasks.create("MixinApk") { task ->
             task.dependsOn("mergeDexRelease")
@@ -97,14 +99,52 @@ class MixinPlugin : Plugin<Project> {
                 }
                 trgDex.dexList.add(newDex)
                 info("Saving dex...")
-                val result = trgDex.saveTo(project.projectDir.child("dist"))
+                val result = trgDex.saveTo(project.projectDir.child("build/mixinDex"))
                 info("Zip to mixin.apk...")
                 ZipUtil.addOrReplaceFilesInZip(
                     project.projectDir.child("dist/mixin.apk"),
                     result.associateBy { it.name }
                 )
-                info("Done!")
             }
         }
+        project.tasks.create("MixinAPK-debug") {
+            it.dependsOn("MixinApk")
+            it.doLast {
+                ManifestEditorMain.main(
+                    project.projectDir.child("dist/mixin.apk").absolutePath,
+                    "-o",
+                    project.projectDir.child("dist/unsign.apk").absolutePath,
+                    "-d", "1",
+                    "-vn", Config.versionName
+                )
+                sign(project)
+            }
+        }
+        project.tasks.create("MixinAPK-release") {
+            it.dependsOn("MixinApk")
+            it.doLast {
+                ManifestEditorMain.main(
+                    project.projectDir.child("dist/mixin.apk").absolutePath,
+                    "-o",
+                    project.projectDir.child("dist/unsign.apk").absolutePath,
+                    "-d", "0",
+                    "-vn", Config.versionName
+                )
+                sign(project)
+            }
+        }
+    }
+    fun sign(project: Project) {
+        ApkSignerTool.main(arrayOf(
+            "sign",
+            "--key",
+            project.projectDir.child("dist/testkey.pk8").absolutePath,
+            "--cert",
+            project.projectDir.child("dist/testkey.x509.pem").absolutePath,
+            "--out",
+            project.projectDir.child("dist/signed.apk").absolutePath,
+            project.projectDir.child("dist/unsign.apk").absolutePath
+        ))
+        project.projectDir.child("dist/unsign.apk").delete()
     }
 }

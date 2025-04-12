@@ -1,3 +1,5 @@
+import momoi.plugin.apkmixin.apkMixin
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -39,6 +41,10 @@ android {
 dependencies {
     compileOnly(libs.androidx.fragment)
     implementation(project(":ApkMixin-annotation"))
-    compileOnly(libs.androidx.recyclerview)
     compileOnly(libs.androidx.constraintlayout)
+    compileOnly(libs.androidx.recyclerview)
+}
+
+apkMixin {
+    versionName = "1.2"
 }
