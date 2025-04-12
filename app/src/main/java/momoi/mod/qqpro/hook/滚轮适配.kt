@@ -2,6 +2,7 @@ package momoi.mod.qqpro.hook
 
 import android.content.Context
 import android.content.res.Resources
+import android.os.Build
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.tencent.qqlive.module.videoreport.inject.dialog.ReportDialog
 import com.tencent.qqnt.watch.mainframe.MainActivity
 import momoi.anno.mixin.Mixin
+import momoi.mod.qqpro.Settings
 import momoi.mod.qqpro.Utils
 import momoi.mod.qqpro.asGroup
 import momoi.mod.qqpro.forEachAll
@@ -32,6 +34,15 @@ class 滚轮适配配(context: Context) : ReportDialog(context) {
             -ev.getAxisValue(MotionEventCompat.AXIS_SCROLL) * ViewConfigurationCompat.getScaledVerticalScrollFactor(
                 ViewConfiguration.get(context), context
             )
+        if(Settings.enableSmoothScroll){
+            if(targetView is RecyclerView){
+                (targetView as RecyclerView).smoothScrollBy(0, delta.roundToInt())
+            }
+            if(targetView is ScrollView){
+                (targetView as ScrollView).smoothScrollBy(0, delta.roundToInt())
+            }
+            return super.dispatchGenericMotionEvent(ev)
+        }
         targetView?.scrollBy(0, delta.roundToInt())
         return super.dispatchGenericMotionEvent(ev)
     }
@@ -48,6 +59,15 @@ class 滚轮适配 : MainActivity() {
             -ev.getAxisValue(MotionEventCompat.AXIS_SCROLL) * ViewConfigurationCompat.getScaledVerticalScrollFactor(
                 ViewConfiguration.get(this), this
             )
+        if(Settings.enableSmoothScroll){
+            if(targetView is RecyclerView){
+                (targetView as RecyclerView).smoothScrollBy(0, delta.roundToInt())
+            }
+            if(targetView is ScrollView){
+                (targetView as ScrollView).smoothScrollBy(0, delta.roundToInt())
+            }
+            return super.dispatchGenericMotionEvent(ev)
+        }
         targetView?.scrollBy(0, delta.roundToInt())
         return super.dispatchGenericMotionEvent(ev)
     }
