@@ -26,6 +26,9 @@ import java.io.FileNotFoundException
 import java.util.zip.ZipFile
 
 class MixinProcessor(private val project: Project) {
+
+    val targetApkName = Config.targetApk ?: throw IllegalArgumentException("targetApk must not be null")
+
     fun processMixin() {
         val (srcDex, trgDex, targetZipFile) = loadDexFiles()
         val mixinClasses = findMixinClasses(srcDex, trgDex)
@@ -42,7 +45,6 @@ class MixinProcessor(private val project: Project) {
             /* logger = */ null
         )
 
-        val targetApkName = Config.targetApk ?: throw IllegalArgumentException("targetApk must not be null")
         val targetApkFile = project.projectDir.child("mixin").child(targetApkName)
         val trgDex = MultiDexIO.readDexFile(
             /* multiDex = */ true,
@@ -177,8 +179,12 @@ class MixinProcessor(private val project: Project) {
         )
 
         info("Zip to mixin.apk...")
+        val mixinApkFile = project.projectDir.child("dist/mixin.apk")
+        val targetApkFile = project.projectDir.child("mixin").child(targetApkName)
+        if (mixinApkFile.length() != targetApkFile.length())
+            targetApkFile.copyTo(mixinApkFile, overwrite = true)
         ZipUtil.addOrReplaceFilesInZip(
-            project.projectDir.child("dist/mixin.apk"),
+            mixinApkFile,
             outputDexDir.listFiles()?.associateBy { it.name } ?: emptyMap()
         )
     }
