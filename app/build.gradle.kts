@@ -11,7 +11,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "momoi.mod.qqpro"
+        applicationId = "com.tencent.qqlite"
         minSdk = 21
         targetSdk = 35
         versionCode = 1

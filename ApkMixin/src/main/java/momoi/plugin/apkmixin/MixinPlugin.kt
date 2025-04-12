@@ -161,6 +161,7 @@ class MixinPlugin : Plugin<Project> {
                     project.projectDir.child("dist/mixin.apk"),
                     outputDexDir.listFiles()?.associateBy { it.name } ?: emptyMap()
                 )
+                createMetadata(project)
             }
         }
         project.tasks.create("MixinAPK-debug") {
@@ -191,6 +192,39 @@ class MixinPlugin : Plugin<Project> {
                 sign(project)
             }
         }
+    }
+
+    fun createMetadata(project: Project) {
+        project.projectDir.child("build/intermediates/apk_ide_redirect_file/debug/createDebugApkListingFileRedirect/redirect.txt").writeText(
+            """
+                #- File Locator -
+                listingFile=../../../../../dist/output-metadata.json
+            """.trimIndent()
+        )
+
+        project.projectDir.child("dist/output-metadata.json").writeText(
+            """
+                {
+                  "version": 3,
+                  "artifactType": {
+                    "type": "APK",
+                    "kind": "Directory"
+                  },
+                  "applicationId": "com.skywear.keyuploader",
+                  "variantName": "debug",
+                  "elements": [
+                    {
+                      "type": "SINGLE",
+                      "filters": [],
+                      "attributes": [],
+                      "outputFile": "mixin.apk"
+                    }
+                  ],
+                  "elementType": "File",
+                  "minSdkVersionForDexing": 24
+                }
+            """.trimIndent()
+        )
     }
 
     fun sign(project: Project) {
