@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.Switch
 import android.widget.TextView
 import androidx.core.content.edit
 import androidx.core.view.forEach
@@ -15,18 +16,7 @@ import momoi.mod.qqpro.Settings
 import momoi.mod.qqpro.Utils
 import momoi.mod.qqpro.asGroup
 import momoi.mod.qqpro.forEachAll
-import momoi.mod.qqpro.lib.FILL
-import momoi.mod.qqpro.lib.GroupScope
-import momoi.mod.qqpro.lib.LinearScope
-import momoi.mod.qqpro.lib.background
-import momoi.mod.qqpro.lib.content
-import momoi.mod.qqpro.lib.dp
-import momoi.mod.qqpro.lib.height
-import momoi.mod.qqpro.lib.padding
-import momoi.mod.qqpro.lib.text
-import momoi.mod.qqpro.lib.textColor
-import momoi.mod.qqpro.lib.vertical
-import momoi.mod.qqpro.lib.width
+import momoi.mod.qqpro.lib.*
 import moye.wearqq.SettingsActivity
 
 @Mixin
@@ -63,6 +53,33 @@ class 设置页 : SettingsActivity() {
                         .doAfterTextChanged {
                             Settings.sp.edit {
                                 putFloat("scale", it.toString().toFloatOrNull() ?: 0.9f)
+                            }
+                        }
+                }
+            add<View>()
+                .height(24.dp)
+            add<LinearLayout>()
+                .width(FILL)
+                .background(0xFF_242424)
+                .padding(4.dp)
+                .content {
+                    add<LinearLayout>()
+                        .vertical()
+                        .weight(1f)
+                        .content {
+                            add<TextView>()
+                                .text("表冠适配修复")
+                                .textColor(0xFF_FFFFFF)
+                            add<TextView>()
+                                .text("表冠划起来没动画开这个")
+                                .textColor(0xFF_a1a1a1)
+                        }
+                    add<Switch>()
+                        .weight(1f)
+                        .checked(Settings.enableSmoothScroll)
+                        .doAfterSwitch {
+                            Settings.sp.edit {
+                                putBoolean("enableSmoothScroll", it)
                             }
                         }
                 }
