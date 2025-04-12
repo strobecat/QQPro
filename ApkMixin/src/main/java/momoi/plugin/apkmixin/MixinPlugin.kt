@@ -115,7 +115,8 @@ class MixinPlugin : Plugin<Project> {
                     "-o",
                     project.projectDir.child("dist/unsign.apk").absolutePath,
                     "-d", "1",
-                    "-vn", Config.versionName
+                    "-vn", Config.versionName,
+                    "--force"
                 )
                 sign(project)
             }
@@ -128,7 +129,8 @@ class MixinPlugin : Plugin<Project> {
                     "-o",
                     project.projectDir.child("dist/unsign.apk").absolutePath,
                     "-d", "0",
-                    "-vn", Config.versionName
+                    "-vn", Config.versionName,
+                    "--force"
                 )
                 sign(project)
             }

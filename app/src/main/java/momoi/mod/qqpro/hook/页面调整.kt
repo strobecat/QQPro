@@ -145,7 +145,7 @@ class 缩小文本 : BaseWatchItemCell() {
     }
     fun resize(view: View) {
         if (view is TextView && view.currentTextColor == 0xFF_FFFFFF.toInt()) {
-            view.textSize = 13.5f
+            view.textSize = 15f * Settings.chatScale
         }
     }
 }

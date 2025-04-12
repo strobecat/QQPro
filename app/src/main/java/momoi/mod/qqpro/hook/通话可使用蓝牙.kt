@@ -12,17 +12,9 @@ import momoi.anno.mixin.Mixin
 @Mixin
 class 通话可使用蓝牙 : C2COperatorImpl() {
     override fun c(i: Int) {
-        super.c(i)
-        if (isBluetoothHeadsetOn()) {
-            e.apply {
-                mode = AudioManager.MODE_NORMAL
-                startBluetoothSco()
-                isBluetoothScoOn = true
-                isSpeakerphoneOn = false
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    clearCommunicationDevice()
-                }
-            }
+        e.isSpeakerphoneOn = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            e.clearCommunicationDevice()
         }
     }
 
