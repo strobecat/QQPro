@@ -19,12 +19,6 @@ repositories {
 dependencies {
     compileOnly(gradleApi())
     implementation(kotlin("stdlib"))
-    //noinspection UseTomlInstead
-    implementation("org.smali:dexlib2:2.5.2")
-    //noinspection UseTomlInstead
-    implementation("org.smali:smali:2.5.2")
-    //noinspection UseTomlInstead
-    implementation("org.smali:baksmali:2.5.2")
     // noinspection UseTomlInstead
     implementation("com.android.tools.smali:smali-dexlib2:3.0.9")
     // noinspection UseTomlInstead
