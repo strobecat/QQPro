@@ -1,31 +1,17 @@
 package momoi.plugin.apkmixin
 
 import com.android.apksigner.ApkSignerTool
-import com.android.tools.smali.dexlib2.iface.ClassDef
-import com.android.tools.smali.dexlib2.iface.DexFile
-import com.android.tools.smali.dexlib2.immutable.ImmutableDexFile
-import com.android.tools.smali.dexlib2.rewriter.DexFileRewriter
-import com.android.tools.smali.dexlib2.rewriter.DexRewriter
-import com.android.tools.smali.dexlib2.rewriter.Rewriter
-import com.android.tools.smali.dexlib2.rewriter.RewriterModule
-import com.android.tools.smali.dexlib2.rewriter.Rewriters
 import com.wind.meditor.ManifestEditorMain
-import lanchon.multidexlib2.BasicDexFileNamer
-import lanchon.multidexlib2.DexIO
-import lanchon.multidexlib2.MultiDexIO
-import momoi.plugin.apkmixin.utils.Smali
-import momoi.plugin.apkmixin.utils.ZipUtil
 import momoi.plugin.apkmixin.utils.child
-import momoi.plugin.apkmixin.utils.findClass
-import momoi.plugin.apkmixin.utils.getDexCount
-import momoi.plugin.apkmixin.utils.info
-import momoi.plugin.apkmixin.utils.toClassDef
-import momoi.plugin.apkmixin.utils.toSmali
+import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import java.io.File
-import java.io.FileNotFoundException
-import java.util.zip.ZipFile
+import org.gradle.api.file.FileCollection
+import org.gradle.api.file.RegularFile
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.TaskAction
 
 class MixinPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -39,13 +25,10 @@ class MixinPlugin : Plugin<Project> {
     }
 
     private fun createMixinBaseTask(project: Project) {
-        project.tasks.create("MixinApk") { task ->
-            task.dependsOn("mergeDexRelease")
-            task.doLast {
-                val processor = MixinProcessor(project)
-                processor.processMixin()
-                createMetadata(project)
-            }
+        project.tasks.register("MixinApk", MixinApkTask::class.java) {
+            val targetApkName = Config.targetApk ?: throw IllegalArgumentException("targetApk must not be null")
+            it.mixinAppDex = project.fileTree("build/intermediates/dex/release/mergeDexRelease")
+            it.targetAppFile = project.layout.projectDirectory.dir("mixin").file(targetApkName)
         }
     }
 
@@ -78,6 +61,39 @@ class MixinPlugin : Plugin<Project> {
             "-vn", Config.versionName,
             "--force"
         )
+    }
+
+    private fun sign(project: Project) {
+        ApkSignerTool.main(arrayOf(
+            "sign",
+            "--key", project.projectDir.child("dist/testkey.pk8").absolutePath,
+            "--cert", project.projectDir.child("dist/testkey.x509.pem").absolutePath,
+            "--out", project.projectDir.child("dist/signed.apk").absolutePath,
+            project.projectDir.child("dist/unsign.apk").absolutePath
+        ))
+        project.projectDir.child("dist/unsign.apk").delete()
+    }
+}
+
+abstract class MixinApkTask: DefaultTask() {
+    @get:InputFiles
+    abstract var mixinAppDex: FileCollection
+
+    @get:InputFile
+    abstract var targetAppFile: RegularFile
+
+    @get:OutputFile
+    val outputFile: RegularFile = project.layout.projectDirectory.file("dist/mixin.apk")
+
+    init {
+        dependsOn("mergeDexRelease")
+    }
+
+    @TaskAction
+    fun execute() {
+        val processor = MixinProcessor(project, mixinAppDex.singleFile.parentFile, targetAppFile.asFile)
+        processor.processMixin()
+        createMetadata(project)
     }
 
     private fun createMetadata(project: Project) {
@@ -116,16 +132,4 @@ class MixinPlugin : Plugin<Project> {
             }
         """.trimIndent())
     }
-
-    private fun sign(project: Project) {
-        ApkSignerTool.main(arrayOf(
-            "sign",
-            "--key", project.projectDir.child("dist/testkey.pk8").absolutePath,
-            "--cert", project.projectDir.child("dist/testkey.x509.pem").absolutePath,
-            "--out", project.projectDir.child("dist/signed.apk").absolutePath,
-            project.projectDir.child("dist/unsign.apk").absolutePath
-        ))
-        project.projectDir.child("dist/unsign.apk").delete()
-    }
 }
-
