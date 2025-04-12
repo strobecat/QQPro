@@ -2,18 +2,18 @@ package momoi.plugin.apkmixin.utils
 
 import org.antlr.runtime.CommonTokenStream
 import org.antlr.runtime.tree.CommonTreeNodeStream
-import org.jf.baksmali.Adaptors.ClassDefinition
-import org.jf.baksmali.Baksmali
-import org.jf.baksmali.BaksmaliOptions
-import org.jf.baksmali.formatter.BaksmaliWriter
-import org.jf.dexlib2.Opcodes
-import org.jf.dexlib2.iface.ClassDef
-import org.jf.dexlib2.writer.builder.DexBuilder
-import org.jf.smali.Smali
-import org.jf.smali.SmaliOptions
-import org.jf.smali.smaliFlexLexer
-import org.jf.smali.smaliParser
-import org.jf.smali.smaliTreeWalker
+import com.android.tools.smali.baksmali.Adaptors.ClassDefinition
+import com.android.tools.smali.baksmali.Baksmali
+import com.android.tools.smali.baksmali.BaksmaliOptions
+import com.android.tools.smali.baksmali.formatter.BaksmaliWriter
+import com.android.tools.smali.dexlib2.Opcodes
+import com.android.tools.smali.dexlib2.iface.ClassDef
+import com.android.tools.smali.dexlib2.writer.builder.DexBuilder
+import com.android.tools.smali.smali.Smali
+import com.android.tools.smali.smali.SmaliOptions
+import com.android.tools.smali.smali.smaliFlexLexer
+import com.android.tools.smali.smali.smaliParser
+import com.android.tools.smali.smali.smaliTreeWalker
 import java.io.StringReader
 import java.io.StringWriter
 

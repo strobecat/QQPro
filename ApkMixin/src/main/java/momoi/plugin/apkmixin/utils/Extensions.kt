@@ -1,11 +1,13 @@
 package momoi.plugin.apkmixin.utils
 
+import lanchon.multidexlib2.DexFileNamer
 import java.io.File
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
+import java.util.zip.ZipFile
 import kotlin.io.path.copyTo
 import kotlin.io.path.pathString
 
@@ -39,4 +41,10 @@ fun mergeDirectories(source: Path, target: Path) {
             return FileVisitResult.CONTINUE
         }
     })
+}
+
+fun ZipFile.getDexCount(namer: DexFileNamer): Int {
+    return generateSequence(0) { it + 1 }
+        .takeWhile { getEntry(namer.getName(it)) != null }
+        .count()
 }

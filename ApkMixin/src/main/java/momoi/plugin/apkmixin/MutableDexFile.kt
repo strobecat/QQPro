@@ -1,9 +1,9 @@
 package momoi.plugin.apkmixin
 
-import org.jf.dexlib2.DexFileFactory
-import org.jf.dexlib2.Opcodes
-import org.jf.dexlib2.iface.ClassDef
-import org.jf.dexlib2.iface.DexFile
+import com.android.tools.smali.dexlib2.DexFileFactory
+import com.android.tools.smali.dexlib2.Opcodes
+import com.android.tools.smali.dexlib2.iface.ClassDef
+import com.android.tools.smali.dexlib2.iface.DexFile
 import java.io.File
 
 class MutableDexFile() : DexFile {

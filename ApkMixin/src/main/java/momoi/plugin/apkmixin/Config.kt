@@ -8,4 +8,6 @@ inline fun Project.apkMixin(block: Config.()->Unit) {
 
 object Config {
     var versionName = ""
+
+    var targetApk: String? = null
 }

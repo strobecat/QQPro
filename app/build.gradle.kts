@@ -47,4 +47,5 @@ dependencies {
 
 apkMixin {
     versionName = "1.2"
+    targetApk = "nwearqq2.apk"
 }

@@ -1,36 +1,62 @@
 package momoi.plugin.apkmixin
 
 import com.android.apksigner.ApkSignerTool
+import com.android.tools.smali.dexlib2.iface.ClassDef
+import com.android.tools.smali.dexlib2.iface.DexFile
+import com.android.tools.smali.dexlib2.immutable.ImmutableDexFile
+import com.android.tools.smali.dexlib2.rewriter.DexFileRewriter
+import com.android.tools.smali.dexlib2.rewriter.DexRewriter
+import com.android.tools.smali.dexlib2.rewriter.Rewriter
+import com.android.tools.smali.dexlib2.rewriter.RewriterModule
+import com.android.tools.smali.dexlib2.rewriter.Rewriters
 import com.wind.meditor.ManifestEditorMain
+import lanchon.multidexlib2.BasicDexFileNamer
+import lanchon.multidexlib2.DexIO
+import lanchon.multidexlib2.MultiDexIO
 import momoi.plugin.apkmixin.utils.Smali
 import momoi.plugin.apkmixin.utils.ZipUtil
 import momoi.plugin.apkmixin.utils.child
+import momoi.plugin.apkmixin.utils.findClass
+import momoi.plugin.apkmixin.utils.getDexCount
 import momoi.plugin.apkmixin.utils.info
 import momoi.plugin.apkmixin.utils.toClassDef
 import momoi.plugin.apkmixin.utils.toSmali
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.jf.dexlib2.iface.ClassDef
 import java.io.File
 import java.io.FileNotFoundException
+import java.util.zip.ZipFile
 
 class MixinPlugin : Plugin<Project> {
-    //TODO 写得一坨 有机会一定要写漂亮一点
+    // TODO 写得一坨 有机会一定要写漂亮一点
     override fun apply(project: Project) {
         project.tasks.create("MixinApk") { task ->
             task.dependsOn("mergeDexRelease")
             task.doLast {
-                val srcDex = MultiDex.fromDir(
-                    File(
+                val srcDex = MultiDexIO.readDexFile(
+                    /* multiDex = */ true,
+                    /* file = */ File(
                         project.projectDir,
                         "build/intermediates/dex/release/mergeDexRelease"
-                    )
+                    ),
+                    /* namer = */ BasicDexFileNamer(),
+                    /* opcodes = */ null,
+                    /* logger = */ null
                 )
-                val trgDex = MultiDex.fromDir(
-                    project.projectDir.child("mixin/target")
+
+                val targetApkName = Config.targetApk ?: throw IllegalArgumentException("targetApk must not be null")
+                val targetApkFile = project.projectDir.child("mixin").child(targetApkName)
+                val trgDex = MultiDexIO.readDexFile(
+                    /* multiDex = */ true,
+                    /* file = */ targetApkFile,
+                    /* namer = */ BasicDexFileNamer(),
+                    /* opcodes = */ null,
+                    /* logger = */ null
                 )
+                val targetZipFile = ZipFile(targetApkFile)
+
                 val mixinClasses = mutableMapOf<ClassDef, ClassDef>()
-                srcDex.foreachClasses { srcDef ->
+                srcDex.classes.forEach { srcDef ->
                     if (srcDef.annotations.any { it.type == "Lmomoi/anno/mixin/Mixin;" }) {
                         mixinClasses[srcDef] = srcDef.superclass?.let { s -> trgDex.findClass(s) }
                             ?: throw FileNotFoundException(
@@ -39,9 +65,11 @@ class MixinPlugin : Plugin<Project> {
                         info("Find Mixin Class: ${srcDef.type} to ${srcDef.superclass}")
                     }
                 }
+
                 val newDex = MutableDexFile()
                 val changedDef = mutableMapOf<ClassDef, ClassDef>()
-                srcDex.foreachClasses { srcDef ->
+                val modifiedClasses = mutableMapOf<String, ClassDef>()
+                srcDex.classes.forEach { srcDef ->
                     var content = srcDef.toSmali()
                     mixinClasses.forEach { (rs, rt) ->
                         content = content.replace(rs.type, rt.type)
@@ -89,21 +117,49 @@ class MixinPlugin : Plugin<Project> {
                         }
                         val newTrgDef = trgSmali.toText().toClassDef()!!
                         changedDef[trgDef] = newTrgDef
-                        trgDex.dexList.forEach { subDex ->
-                            subDex.classes.find { it.type == trgDef.type }?.let { subDef ->
-                                subDex.classes.remove(subDef)
-                                subDex.classes.add(newTrgDef)
+                        modifiedClasses[newTrgDef.type] = newTrgDef
+                    }
+                }
+
+                val rewriter = DexRewriter(
+                    object : RewriterModule() {
+                        override fun getDexFileRewriter(rewriters: Rewriters): Rewriter<DexFile?> {
+                            return object : DexFileRewriter(rewriters) {
+                                override fun rewrite(value: DexFile): DexFile {
+                                    return super.rewrite(
+                                        ImmutableDexFile(
+                                            value.opcodes,
+                                            buildList {
+                                                addAll(value.classes)
+
+                                                val types = modifiedClasses.keys
+                                                removeAll { it.type in types }
+
+                                                addAll(modifiedClasses.values)
+                                            }
+                                        )
+                                    )
+                                }
                             }
                         }
                     }
-                }
-                trgDex.dexList.add(newDex)
+                )
                 info("Saving dex...")
-                val result = trgDex.saveTo(project.projectDir.child("build/mixinDex"))
+                val namer = BasicDexFileNamer()
+                val outputDexDir = project.projectDir.child("build/mixinDex")
+                MultiDexIO.writeDexFile(
+                    /* multiDex = */ true,
+                    /* threadCount = */ targetZipFile.getDexCount(namer),
+                    /* file = */ project.projectDir.child("build/mixinDex"),
+                    /* namer = */ namer,
+                    /* dexFile = */ rewriter.dexFileRewriter.rewrite(trgDex),
+                    /* maxDexPoolSize = */ DexIO.DEFAULT_MAX_DEX_POOL_SIZE,
+                    /* logger = */ null
+                )
                 info("Zip to mixin.apk...")
                 ZipUtil.addOrReplaceFilesInZip(
                     project.projectDir.child("dist/mixin.apk"),
-                    result.associateBy { it.name }
+                    outputDexDir.listFiles()?.associateBy { it.name } ?: emptyMap()
                 )
             }
         }
@@ -136,6 +192,7 @@ class MixinPlugin : Plugin<Project> {
             }
         }
     }
+
     fun sign(project: Project) {
         ApkSignerTool.main(arrayOf(
             "sign",
@@ -149,4 +206,5 @@ class MixinPlugin : Plugin<Project> {
         ))
         project.projectDir.child("dist/unsign.apk").delete()
     }
+
 }
