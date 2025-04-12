@@ -101,7 +101,7 @@ class MixinPlugin : Plugin<Project> {
                 "type": "APK",
                 "kind": "Directory"
               },
-              "applicationId": "com.skywear.keyuploader",
+              "applicationId": "com.tencent.qqlite",
               "variantName": "debug",
               "elements": [
                 {
