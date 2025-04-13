@@ -25,13 +25,14 @@ import momoi.plugin.apkmixin.utils.toSmali
 import org.gradle.api.Project
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipFile
 import kotlin.getValue
 
 class MixinProcessor(
     private val project: Project,
-    private val inputDexDir: File = project.projectDir.child("build/intermediates/dex/release/mergeDexRelease"),
+    private val inputDexDir: File = project.layout.buildDirectory.dir("intermediates/dex/release/mergeDexRelease").get().asFile,
     private val targetApkFile: File = project.projectDir.child("mixin").child(extension.targetApk.orEmpty()),
     private val extension: ApkMixinExtension = project.extensions.getByType(ApkMixinExtension::class.java)
 ) {
@@ -49,7 +50,7 @@ class MixinProcessor(
     private fun loadDexFiles(): Triple<DexFile, DexFile, ZipFile> {
         val srcDex = MultiDexIO.readDexFile(
             /* multiDex = */ true,
-            /* file = */ File(project.projectDir, "build/intermediates/dex/release/mergeDexRelease"),
+            /* file = */ inputDexDir,
             /* namer = */ BasicDexFileNamer(),
             /* opcodes = */ null,
             /* logger = */ null
@@ -179,7 +180,11 @@ class MixinProcessor(
         lifecycle("Writing dex...")
         val stopWatchWriteDex = Stopwatch.createStarted()
         val namer = BasicDexFileNamer()
-        val outputDexDir = project.projectDir.child("build/mixinDex")
+        val outputDexDir = project.layout.buildDirectory.dir("mixinDex").get().asFile.also {
+            if (!it.isDirectory && ((it.exists() && !it.delete()) || !it.mkdirs())) {
+                throw IOException("Failed to create ${it.absolutePath}")
+            }
+        }
         
         MultiDexIO.writeDexFile(
             /* multiDex = */ true,
@@ -194,18 +199,19 @@ class MixinProcessor(
         stopWatchWriteDex.stop()
         lifecycle("Dex written in ${stopWatchWriteDex.elapsed(TimeUnit.MILLISECONDS)}ms")
 
-        lifecycle("Zip to mixin.apk...")
+        lifecycle("Zip to mixin apk...")
         val stopWatchZipToApk = Stopwatch.createStarted()
-        val mixinApkFile = project.projectDir.child("dist/mixin.apk")
-        if (mixinApkFile.length() != targetApkFile.length())
+        val mixinApkFile = project.outputDir(extension).child(extension.output.mixinApkFileName)
+        if (mixinApkFile.length() != targetApkFile.length()) {
             targetApkFile.copyTo(mixinApkFile, overwrite = true)
+        }
         ZipUtil.addOrReplaceFilesInZip(
             mixinApkFile,
             outputDexDir.listFiles()?.associateBy { it.name } ?: emptyMap()
         )
 
         stopWatchZipToApk.stop()
-        lifecycle("Mixin.apk written in ${stopWatchZipToApk.elapsed(TimeUnit.MILLISECONDS)}ms")
+        lifecycle("Mixin apk written in ${stopWatchZipToApk.elapsed(TimeUnit.MILLISECONDS)}ms")
     }
 
     private fun createDexRewriter(newClassesDex: DexFile, modifiedClasses: Map<String, ClassDef>): DexRewriter {
