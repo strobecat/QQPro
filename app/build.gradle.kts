@@ -1,5 +1,3 @@
-import momoi.plugin.apkmixin.apkMixin
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -48,4 +46,14 @@ dependencies {
 apkMixin {
     versionName = "1.2"
     targetApk = "nwearqq2.apk"
+    useProcessorCountAsThreadCount = project.properties["useProcessorCountAsThreadCount"] == "true"
+
+    signing {
+        keyFile = file("dist/testkey.pk8")
+        certFile = file("dist/testkey.x509.pem")
+    }
+
+    output {
+        signedFileName = "QQPro_${versionName}.apk"
+    }
 }

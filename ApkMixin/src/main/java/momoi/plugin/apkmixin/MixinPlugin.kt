@@ -13,8 +13,14 @@ import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
+const val APK_MIXIN_EXTENSION_NAME = "apkMixin"
+
 class MixinPlugin : Plugin<Project> {
+
+    private lateinit var extension: ApkMixinExtension
+
     override fun apply(project: Project) {
+        extension = project.extensions.create(APK_MIXIN_EXTENSION_NAME, ApkMixinExtension::class.java)
         configureMixinTasks(project)
     }
 
@@ -26,7 +32,7 @@ class MixinPlugin : Plugin<Project> {
 
     private fun createMixinBaseTask(project: Project) {
         project.tasks.register("MixinApk", MixinApkTask::class.java) {
-            val targetApkName = Config.targetApk ?: throw IllegalArgumentException("targetApk must not be null")
+            val targetApkName = extension.targetApk ?: throw IllegalArgumentException("targetApk must not be null")
             it.mixinAppDex = project.fileTree("build/intermediates/dex/release/mergeDexRelease")
             it.targetAppFile = project.layout.projectDirectory.dir("mixin").file(targetApkName)
             it.doLast {
@@ -41,7 +47,7 @@ class MixinPlugin : Plugin<Project> {
             it.doLast {
                 processManifest(project, isDebug = true)
                 sign(project)
-                createMetadata(project, "signed.apk")
+                createMetadata(project, extension.output.signedFileName)
             }
         }
     }
@@ -52,36 +58,39 @@ class MixinPlugin : Plugin<Project> {
             it.doLast {
                 processManifest(project, isDebug = false)
                 sign(project)
-                createMetadata(project, "signed.apk")
+                createMetadata(project, extension.output.signedFileName)
             }
         }
     }
 
     private fun processManifest(project: Project, isDebug: Boolean) {
         ManifestEditorMain.main(
-            project.projectDir.child("dist/mixin.apk").absolutePath,
+            project.outputDir(extension).child(extension.output.mixinApkFileName).absolutePath,
             "-o",
-            project.projectDir.child("dist/unsign.apk").absolutePath,
+            project.outputDir(extension).child(extension.output.unsignedFileName).absolutePath,
             "-d", if (isDebug) "1" else "0",
-            "-vn", Config.versionName,
+            "-vn", extension.versionName,
             "--force"
         )
     }
 
     private fun sign(project: Project) {
-        ApkSignerTool.main(arrayOf(
-            "sign",
-            "--key", project.projectDir.child("dist/testkey.pk8").absolutePath,
-            "--cert", project.projectDir.child("dist/testkey.x509.pem").absolutePath,
-            "--out", project.projectDir.child("dist/signed.apk").absolutePath,
-            project.projectDir.child("dist/unsign.apk").absolutePath
-        ))
-        project.projectDir.child("dist/unsign.apk").delete()
+        if (extension.signing.enabled) {
+            val unsignedApkFile = project.outputDir(extension).child(extension.output.unsignedFileName)
+            ApkSignerTool.main(arrayOf(
+                "sign",
+                "--key", extension.signing.keyFile?.absolutePath,
+                "--cert", extension.signing.certFile?.absolutePath,
+                "--out", project.outputDir(extension).child(extension.output.signedFileName).absolutePath,
+                unsignedApkFile.absolutePath
+            ))
+            unsignedApkFile.delete()
+        }
     }
 
     private fun createMetadata(
         project: Project,
-        fileName: String = "mixin.apk"
+        fileName: String = extension.output.mixinApkFileName
     ) {
         createRedirectFile(project)
         createOutputMetadataFile(project, fileName)
@@ -131,7 +140,7 @@ abstract class MixinApkTask: DefaultTask() {
     abstract var targetAppFile: RegularFile
 
     @get:OutputFile
-    val outputFile: RegularFile = project.layout.projectDirectory.file("dist/mixin.apk")
+    val outputFile: RegularFile = project.layout.projectDirectory.file("dist/${DEFAULT_MIXIN_APK_NAME}")
 
     init {
         dependsOn("mergeDexRelease")

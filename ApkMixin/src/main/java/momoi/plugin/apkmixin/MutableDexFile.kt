@@ -19,7 +19,4 @@ class MutableDexFile() : DexFile {
 
     override fun getOpcodes() = Opcodes.getDefault()
 
-    fun writeTo(file: File) {
-        DexFileFactory.writeDexFile(file.absolutePath, this)
-    }
 }

@@ -8,6 +8,7 @@ import com.android.tools.smali.dexlib2.rewriter.DexRewriter
 import com.android.tools.smali.dexlib2.rewriter.Rewriter
 import com.android.tools.smali.dexlib2.rewriter.RewriterModule
 import com.android.tools.smali.dexlib2.rewriter.Rewriters
+import com.google.common.base.Stopwatch
 import lanchon.multidexlib2.BasicDexFileNamer
 import lanchon.multidexlib2.DexIO
 import lanchon.multidexlib2.MultiDexIO
@@ -15,26 +16,33 @@ import momoi.plugin.apkmixin.utils.Smali
 import momoi.plugin.apkmixin.utils.SmaliMethod
 import momoi.plugin.apkmixin.utils.ZipUtil
 import momoi.plugin.apkmixin.utils.child
+import momoi.plugin.apkmixin.utils.info
 import momoi.plugin.apkmixin.utils.findClass
 import momoi.plugin.apkmixin.utils.getDexCount
-import momoi.plugin.apkmixin.utils.info
+import momoi.plugin.apkmixin.utils.lifecycle
 import momoi.plugin.apkmixin.utils.toClassDef
 import momoi.plugin.apkmixin.utils.toSmali
 import org.gradle.api.Project
 import java.io.File
 import java.io.FileNotFoundException
+import java.util.concurrent.TimeUnit
 import java.util.zip.ZipFile
+import kotlin.getValue
 
 class MixinProcessor(
     private val project: Project,
     private val inputDexDir: File = project.projectDir.child("build/intermediates/dex/release/mergeDexRelease"),
-    private val targetApkFile: File = project.projectDir.child("mixin").child(Config.targetApk.orEmpty())
+    private val targetApkFile: File = project.projectDir.child("mixin").child(extension.targetApk.orEmpty()),
+    private val extension: ApkMixinExtension = project.extensions.getByType(ApkMixinExtension::class.java)
 ) {
 
     fun processMixin() {
         val (srcDex, trgDex, targetZipFile) = loadDexFiles()
         val mixinClasses = findMixinClasses(srcDex, trgDex)
+        lifecycle("Processing Mixin...")
+        val stopwatch = Stopwatch.createStarted()
         val (newClassesDex, modifiedClasses) = processClasses(srcDex, trgDex, mixinClasses)
+        lifecycle("Mixin processed in ${stopwatch.elapsed(TimeUnit.MILLISECONDS)}ms")
         writeDexOutput(trgDex, newClassesDex, modifiedClasses, targetZipFile)
     }
 
@@ -61,15 +69,18 @@ class MixinProcessor(
 
     private fun findMixinClasses(srcDex: DexFile, targetDex: DexFile): Map<ClassDef, ClassDef> {
         val mixinClasses = mutableMapOf<ClassDef, ClassDef>()
+        var mixinClassCount = 0
         srcDex.classes.forEach { srcDef ->
             if (srcDef.annotations.any { it.type == "Lmomoi/anno/mixin/Mixin;" }) {
                 mixinClasses[srcDef] = srcDef.superclass?.let { s -> targetDex.findClass(s) }
                     ?: throw FileNotFoundException(
-                        "Cannot find mixin ${srcDef.type} target class ${srcDef.superclass}"
+                        "Can not find mixin ${srcDef.type} target class ${srcDef.superclass}"
                     )
-                info("Find Mixin Class: ${srcDef.type} to ${srcDef.superclass}")
+                info("Found Mixin Class: ${srcDef.type} to ${srcDef.superclass}")
+                mixinClassCount++
             }
         }
+        lifecycle("Found $mixinClassCount mixin classes")
         return mixinClasses
     }
 
@@ -165,13 +176,14 @@ class MixinProcessor(
 
     private fun writeDexOutput(trgDex: DexFile, newDex: DexFile, modifiedClasses: Map<String, ClassDef>, targetZipFile: ZipFile) {
         val rewriter = createDexRewriter(newDex, modifiedClasses)
-        info("Saving dex...")
+        lifecycle("Writing dex...")
+        val stopWatchWriteDex = Stopwatch.createStarted()
         val namer = BasicDexFileNamer()
         val outputDexDir = project.projectDir.child("build/mixinDex")
         
         MultiDexIO.writeDexFile(
             /* multiDex = */ true,
-            /* threadCount = */ targetZipFile.getDexCount(namer),
+            /* threadCount = */ if (extension.useProcessorCountAsThreadCount) Runtime.getRuntime().availableProcessors() else targetZipFile.getDexCount(namer),
             /* file = */ outputDexDir,
             /* namer = */ namer,
             /* dexFile = */ rewriter.dexFileRewriter.rewrite(trgDex),
@@ -179,7 +191,11 @@ class MixinProcessor(
             /* logger = */ null
         )
 
-        info("Zip to mixin.apk...")
+        stopWatchWriteDex.stop()
+        lifecycle("Dex written in ${stopWatchWriteDex.elapsed(TimeUnit.MILLISECONDS)}ms")
+
+        lifecycle("Zip to mixin.apk...")
+        val stopWatchZipToApk = Stopwatch.createStarted()
         val mixinApkFile = project.projectDir.child("dist/mixin.apk")
         if (mixinApkFile.length() != targetApkFile.length())
             targetApkFile.copyTo(mixinApkFile, overwrite = true)
@@ -187,6 +203,9 @@ class MixinProcessor(
             mixinApkFile,
             outputDexDir.listFiles()?.associateBy { it.name } ?: emptyMap()
         )
+
+        stopWatchZipToApk.stop()
+        lifecycle("Mixin.apk written in ${stopWatchZipToApk.elapsed(TimeUnit.MILLISECONDS)}ms")
     }
 
     private fun createDexRewriter(newClassesDex: DexFile, modifiedClasses: Map<String, ClassDef>): DexRewriter {
