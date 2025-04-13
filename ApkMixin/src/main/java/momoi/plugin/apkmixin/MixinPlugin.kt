@@ -34,7 +34,7 @@ class MixinPlugin : Plugin<Project> {
     private fun createMixinBaseTask(project: Project) {
         project.tasks.register("MixinApk", MixinApkTask::class.java) {
             val targetApkName = extension.targetApk ?: throw IllegalArgumentException("targetApk must not be null")
-            it.mixinAppDex = project.fileTree("build/intermediates/dex/release/mergeDexRelease")
+            it.mixinAppDex = project.layout.buildDirectory.dir("intermediates/dex/release/mergeDexRelease").get().asFileTree
             it.targetAppFile = project.layout.projectDirectory.dir("mixin").file(targetApkName)
             it.doLast {
                 createMetadata(project)
@@ -102,7 +102,7 @@ class MixinPlugin : Plugin<Project> {
     }
 
     private fun createRedirectFile(project: Project) {
-        project.projectDir.child("build/intermediates/apk_ide_redirect_file/debug/createDebugApkListingFileRedirect/redirect.txt")
+        project.layout.buildDirectory.file("intermediates/apk_ide_redirect_file/debug/createDebugApkListingFileRedirect/redirect.txt").get().asFile
             .writeText("""
                 #- File Locator -
                 listingFile=../../../../../dist/output-metadata.json

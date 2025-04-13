@@ -32,7 +32,7 @@ import kotlin.getValue
 
 class MixinProcessor(
     private val project: Project,
-    private val inputDexDir: File = project.projectDir.child("build/intermediates/dex/release/mergeDexRelease"),
+    private val inputDexDir: File = project.layout.buildDirectory.dir("intermediates/dex/release/mergeDexRelease").get().asFile,
     private val targetApkFile: File = project.projectDir.child("mixin").child(extension.targetApk.orEmpty()),
     private val extension: ApkMixinExtension = project.extensions.getByType(ApkMixinExtension::class.java)
 ) {
@@ -180,7 +180,7 @@ class MixinProcessor(
         lifecycle("Writing dex...")
         val stopWatchWriteDex = Stopwatch.createStarted()
         val namer = BasicDexFileNamer()
-        val outputDexDir = project.buildFile.child("build/mixinDex").also {
+        val outputDexDir = project.layout.buildDirectory.dir("mixinDex").get().asFile.also {
             if (!it.isDirectory && ((it.exists() && !it.delete()) || !it.mkdirs())) {
                 throw IOException("Failed to create ${it.absolutePath}")
             }
