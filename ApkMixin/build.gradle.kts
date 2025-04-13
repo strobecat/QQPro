@@ -14,16 +14,19 @@ kotlin {
 repositories {
     mavenCentral()
     google()
+    mavenLocal()
 }
 dependencies {
     compileOnly(gradleApi())
     implementation(kotlin("stdlib"))
-    //noinspection UseTomlInstead
-    implementation("org.smali:dexlib2:2.5.2")
-    //noinspection UseTomlInstead
-    implementation("org.smali:smali:2.5.2")
-    //noinspection UseTomlInstead
-    implementation("org.smali:baksmali:2.5.2")
+    // noinspection UseTomlInstead
+    implementation("com.android.tools.smali:smali-dexlib2:3.0.9")
+    // noinspection UseTomlInstead
+    implementation("com.android.tools.smali:smali:3.0.9")
+    // noinspection UseTomlInstead
+    implementation("com.android.tools.smali:smali-baksmali:3.0.9")
+    // noinspection UseTomlInstead
+    implementation("com.huanli233:multidexlib2:3.0.9.r4")
     implementation(fileTree("./libs") {
         include("*.jar")
     })

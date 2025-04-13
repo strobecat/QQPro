@@ -9,23 +9,31 @@ import java.io.OutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import kotlin.io.path.Path
 
 object ZipUtil {
     fun addOrReplaceFilesInZip(zipFile: File, filesToAdd: Map<String, File>) {
         // 创建临时文件
         val tempFile = File.createTempFile("tempZip", ".zip", zipFile.parentFile)
+        var originalZip: ZipFile? = null
+        
         try {
-            ZipOutputStream(tempFile.outputStream().buffered()).use { zos ->
+            ZipOutputStream(FileOutputStream(tempFile).buffered()).use { zos ->
                 // 处理原始 ZIP 条目，跳过需替换的文件
-                ZipFile(zipFile).use { originalZip ->
-                    originalZip.entries().asSequence().forEach { entry ->
+                originalZip = ZipFile(zipFile)
+                originalZip.use { zip ->
+                    zip.entries().asSequence().forEach { entry ->
                         if (!filesToAdd.containsKey(entry.name)) {
                             // 复制条目到临时 ZIP
                             zos.putNextEntry(ZipEntry(entry.name).apply {
                                 time = entry.time
                                 comment = entry.comment
                             })
-                            originalZip.getInputStream(entry).copyTo(zos)
+                            zip.getInputStream(entry).use { input ->
+                                input.copyTo(zos)
+                            }
                             zos.closeEntry()
                         }
                     }
@@ -34,18 +42,37 @@ object ZipUtil {
                 // 添加或替换新文件
                 filesToAdd.forEach { (entryName, file) ->
                     zos.putNextEntry(ZipEntry(entryName))
-                    file.inputStream().use { it.copyTo(zos) }
+                    FileInputStream(file).use { input ->
+                        input.copyTo(zos)
+                    }
                     zos.closeEntry()
                 }
             }
 
-            // 替换原文件
-            if (!zipFile.delete() || !tempFile.renameTo(zipFile)) {
-                throw IOException("Failed to replace original ZIP file")
+            originalZip?.close()
+            originalZip = null
+
+            try {
+                Files.deleteIfExists(zipFile.toPath())
+                Files.move(
+                    tempFile.toPath(),
+                    zipFile.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING,
+                    StandardCopyOption.ATOMIC_MOVE
+                )
+            } catch (e: Exception) {
+                Files.copy(
+                    tempFile.toPath(),
+                    zipFile.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING
+                )
+                tempFile.delete()
             }
         } catch (e: Exception) {
-            tempFile.delete() // 清理临时文件
+            tempFile.delete()
             throw e
+        } finally {
+            originalZip?.close()
         }
     }
 }
