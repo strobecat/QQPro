@@ -3,6 +3,7 @@ package momoi.plugin.apkmixin
 import com.android.apksigner.ApkSignerTool
 import com.wind.meditor.ManifestEditorMain
 import momoi.plugin.apkmixin.utils.child
+import momoi.plugin.apkmixin.utils.lifecycle
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -47,7 +48,7 @@ class MixinPlugin : Plugin<Project> {
             it.doLast {
                 processManifest(project, isDebug = true)
                 sign(project)
-                createMetadata(project, extension.output.signedFileName)
+                createMetadata(project, if (extension.signing.enabled) extension.output.signedFileName else extension.output.unsignedFileName)
             }
         }
     }
@@ -58,12 +59,13 @@ class MixinPlugin : Plugin<Project> {
             it.doLast {
                 processManifest(project, isDebug = false)
                 sign(project)
-                createMetadata(project, extension.output.signedFileName)
+                createMetadata(project, if (extension.signing.enabled) extension.output.signedFileName else extension.output.unsignedFileName)
             }
         }
     }
 
     private fun processManifest(project: Project, isDebug: Boolean) {
+        lifecycle("Processing manifest...")
         ManifestEditorMain.main(
             project.outputDir(extension).child(extension.output.mixinApkFileName).absolutePath,
             "-o",
@@ -76,15 +78,18 @@ class MixinPlugin : Plugin<Project> {
 
     private fun sign(project: Project) {
         if (extension.signing.enabled) {
+            lifecycle("Signing...")
             val unsignedApkFile = project.outputDir(extension).child(extension.output.unsignedFileName)
+            val signedApkFile = project.outputDir(extension).child(extension.output.signedFileName)
             ApkSignerTool.main(arrayOf(
                 "sign",
                 "--key", extension.signing.keyFile?.absolutePath,
                 "--cert", extension.signing.certFile?.absolutePath,
-                "--out", project.outputDir(extension).child(extension.output.signedFileName).absolutePath,
+                "--out", signedApkFile.absolutePath,
                 unsignedApkFile.absolutePath
             ))
             unsignedApkFile.delete()
+            lifecycle("Signed: ${signedApkFile.absolutePath}")
         }
     }
 
@@ -108,7 +113,7 @@ class MixinPlugin : Plugin<Project> {
         project: Project,
         fileName: String
     ) {
-        project.projectDir.child("dist/output-metadata.json").writeText("""
+        project.outputDir(extension).child("output-metadata.json").writeText("""
             {
               "version": 3,
               "artifactType": {
@@ -133,6 +138,9 @@ class MixinPlugin : Plugin<Project> {
 }
 
 abstract class MixinApkTask: DefaultTask() {
+
+    private val extension = project.extensions.findByType(ApkMixinExtension::class.java) ?: ApkMixinExtension()
+
     @get:InputFiles
     abstract var mixinAppDex: FileCollection
 
@@ -140,7 +148,7 @@ abstract class MixinApkTask: DefaultTask() {
     abstract var targetAppFile: RegularFile
 
     @get:OutputFile
-    val outputFile: RegularFile = project.layout.projectDirectory.file("dist/${DEFAULT_MIXIN_APK_NAME}")
+    val outputMixinFile: RegularFile = project.layout.projectDirectory.dir(extension.output.outputDir).file(extension.output.mixinApkFileName)
 
     init {
         dependsOn("mergeDexRelease")
