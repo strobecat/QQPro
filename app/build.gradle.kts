@@ -45,12 +45,12 @@ dependencies {
 
 apkMixin {
     versionName = "1.2"
-    targetApk = "nwearqq2.apk"
+    targetApk = "source.apk"
     useProcessorCountAsThreadCount = project.properties["useProcessorCountAsThreadCount"] == "true"
 
     signing {
-        keyFile = file("dist/testkey.pk8")
-        certFile = file("dist/testkey.x509.pem")
+        keyFile = file("mixin/testkey.pk8")
+        certFile = file("mixin/testkey.x509.pem")
     }
 
     output {
