@@ -5,8 +5,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class InputMethodFragment {
-    public View S(LayoutInflater p1, ViewGroup p2, Bundle p3) {
+import com.tencent.qqlive.module.videoreport.inject.fragment.ReportAndroidXDialogFragment;
+
+public class InputMethodFragment extends ReportAndroidXDialogFragment {
+    public View Y(LayoutInflater p1, ViewGroup p2, Bundle p3) {
         throw new RuntimeException();
     }
 }

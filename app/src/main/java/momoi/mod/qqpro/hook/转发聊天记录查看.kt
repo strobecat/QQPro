@@ -24,6 +24,7 @@ import com.tencent.watch.aio_impl.ui.cell.unsupport.WatchToQQViewMsgItem
 import com.tencent.watch.aio_impl.ui.widget.AIOCellGroupWidget
 import loadPicElement
 import momoi.anno.mixin.Mixin
+import momoi.mod.qqpro.hook.style.MyImageView
 import momoi.mod.qqpro.lib.FILL
 import momoi.mod.qqpro.hook.view.ReplyView
 import momoi.mod.qqpro.lib.background
