@@ -21,6 +21,7 @@ import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.Utils
 import momoi.mod.qqpro.hook.action.CurrentMsgList
 import momoi.mod.qqpro.hook.view.ReplyView
+import momoi.mod.qqpro.hook.view.smoothScrollToStart
 import momoi.mod.qqpro.lib.Observable
 import momoi.mod.qqpro.lib.WRAP
 import momoi.mod.qqpro.lib.create
@@ -44,16 +45,7 @@ class ReplyClick(
             result = { item ->
                 finding = false
                 if (item != null) {
-                    rv.layoutManager?.startSmoothScroll(
-                        object : LinearSmoothScroller(widget.context) {
-                            init {
-                                targetPosition = CurrentMsgList.getMsgIndex(item)
-                            }
-                            override fun getVerticalSnapPreference(): Int {
-                                return SNAP_TO_START
-                            }
-                        }
-                    )
+                    rv.smoothScrollToStart(CurrentMsgList.getMsgIndex(item))
                 }
             }
         )
