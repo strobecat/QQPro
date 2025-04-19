@@ -1,9 +1,8 @@
 package momoi.mod.qqpro.hook.style
 
 import android.content.Context
+import android.content.res.Resources
 import android.widget.ImageView
-
-private val heightLimit = Resources.getSystem().displayMetrics.heightPixels * 0.5f
 
 class MyImageView(context: Context) : ImageView(context) {
     init {

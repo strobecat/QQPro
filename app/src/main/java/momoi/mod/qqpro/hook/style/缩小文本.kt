@@ -2,6 +2,7 @@ package momoi.mod.qqpro.hook.style
 
 import android.view.View
 import android.widget.TextView
+import androidx.core.view.forEach
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import com.tencent.watch.aio_impl.data.WatchAIOMsgItem
