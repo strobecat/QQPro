@@ -3,6 +3,7 @@ package momoi.plugin.apkmixin
 import com.android.apksigner.ApkSignerTool
 import com.wind.meditor.ManifestEditorMain
 import momoi.plugin.apkmixin.utils.child
+import momoi.plugin.apkmixin.utils.ensureDirExists
 import momoi.plugin.apkmixin.utils.lifecycle
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
@@ -103,6 +104,7 @@ class MixinPlugin : Plugin<Project> {
 
     private fun createRedirectFile(project: Project) {
         project.layout.buildDirectory.file("intermediates/apk_ide_redirect_file/debug/createDebugApkListingFileRedirect/redirect.txt").get().asFile
+            .ensureDirExists()
             .writeText("""
                 #- File Locator -
                 listingFile=../../../../../dist/output-metadata.json

@@ -53,6 +53,10 @@ fun ZipFile.getDexCount(namer: DexFileNamer): Int {
         .count()
 }
 
+fun File.ensureDirExists() = apply {
+    parentFile.mkdirs()
+}
+
 /* String */
 
 fun String.removeBefore(s: String, keep: Boolean = false) =
