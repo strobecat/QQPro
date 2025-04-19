@@ -19,41 +19,12 @@ import com.tencent.watch.aio_impl.ui.cell.base.BaseWatchItemCell
 import com.tencent.watch.aio_impl.ui.widget.AIOCellGroupWidget
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.Utils
+import momoi.mod.qqpro.hook.action.CurrentMsgList
 import momoi.mod.qqpro.hook.view.ReplyView
 import momoi.mod.qqpro.lib.Observable
 import momoi.mod.qqpro.lib.WRAP
 import momoi.mod.qqpro.lib.create
 import momoi.mod.qqpro.warp
-
-private var msgList = Observable(listOf<WatchAIOMsgItem>())
-fun findMsg(
-    seq: Long,
-    loadMore: () -> Unit,
-    result: (WatchAIOMsgItem?) -> Unit,
-    maxCount: Int = 10
-) {
-    val msg = msgList.value.find { it.d.msgSeq == seq }
-    if (msg == null) {
-        if (maxCount > 0) {
-            msgList.observeOnce {
-                findMsg(seq, loadMore, result, maxCount - 1)
-            }
-            loadMore()
-            Utils.log("Msg not found, try to load more")
-        } else result(null)
-    } else {
-        result(msg)
-    }
-}
-
-@Mixin
-class 获取显示消息列表 : WatchAIOListVB() {
-    @Suppress("UNCHECKED_CAST")
-    override fun n(state: MsgListUiState, uiHelper: IListUIOperationApi) {
-        super.n(state, uiHelper)
-        msgList.update(state as List<WatchAIOMsgItem>)
-    }
-}
 
 //不用lambda是因为lambda编译会创建private类，在hook target中无法访问
 class ReplyClick(
@@ -68,21 +39,16 @@ class ReplyClick(
             return
         }
         finding = true
-        findMsg(
+        CurrentMsgList.findMsg(
             seq = reply.replayMsgSeq,
-            loadMore = {
-                ((rv.adapter as AIOListAdapter).c as WatchAIOListVB)
-                    .L(`MsgListDataIntent$LoadTopPage`("WatchAIOListVB"))
-            },
             result = { item ->
                 finding = false
                 if (item != null) {
                     rv.layoutManager?.startSmoothScroll(
                         object : LinearSmoothScroller(widget.context) {
                             init {
-                                targetPosition = msgList.value.indexOf(item)
+                                targetPosition = CurrentMsgList.getMsgIndex(item)
                             }
-
                             override fun getVerticalSnapPreference(): Int {
                                 return SNAP_TO_START
                             }
