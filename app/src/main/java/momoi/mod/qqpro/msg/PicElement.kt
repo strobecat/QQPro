@@ -18,7 +18,7 @@ fun PicElement.getImageUrl(): String {
 
     if (originImageUrl.isNotEmpty() && isNTV2 && imageFileId != null) {
         val rkeyData = getRkeyData()
-        return getImageUrlFromParsedUrl(imageFileId, imageAppid!!, rkeyData)
+        return "$IMAGE_HTTP_HOST$originImageUrl"
     }
     return getImageUrlFromMd5(md5HexStr, md5HexStr)
 }

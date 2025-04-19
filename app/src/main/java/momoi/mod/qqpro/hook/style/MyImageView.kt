@@ -8,6 +8,7 @@ class MyImageView(context: Context) : ImageView(context) {
     init {
         adjustViewBounds = true
         scaleType = ScaleType.FIT_CENTER
+        maxHeight = (heightLimit * 1.5f).toInt()
     }
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         maxHeight = (heightLimit * 1.5f).toInt()
