@@ -35,11 +35,11 @@ import momoi.mod.qqpro.lib.background
 @Mixin
 class 缩放 : AutoSizeConfig() {
     override fun getDesignHeightInDp(): Int {
-        return (super.getDesignHeightInDp() / Settings.scale).toInt()
+        return (super.getDesignHeightInDp() / Settings.scale.value).toInt()
     }
 
     override fun getDesignWidthInDp(): Int {
-        return (super.getDesignWidthInDp() / Settings.scale).toInt()
+        return (super.getDesignWidthInDp() / Settings.scale.value).toInt()
     }
 }
 
@@ -145,7 +145,7 @@ class 缩小文本 : BaseWatchItemCell() {
     }
     fun resize(view: View) {
         if (view is TextView && view.currentTextColor == 0xFF_FFFFFF.toInt()) {
-            view.textSize = 15f * Settings.chatScale
+            view.textSize = 15f * Settings.chatScale.value
         }
     }
 }

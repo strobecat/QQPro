@@ -12,6 +12,7 @@ import androidx.core.content.edit
 import androidx.core.view.forEach
 import androidx.core.widget.doAfterTextChanged
 import momoi.anno.mixin.Mixin
+import momoi.mod.qqpro.Pref
 import momoi.mod.qqpro.Settings
 import momoi.mod.qqpro.Utils
 import momoi.mod.qqpro.asGroup
@@ -49,19 +50,16 @@ class 设置页 : SettingsActivity() {
             floatInput(
                 "缩放倍数",
                 "重启后生效",
-                "scale",
                 Settings.scale
             )
             floatInput(
                 "聊天文本缩放",
                 "",
-                "chatScale",
                 Settings.chatScale
             )
             switch(
                 "平滑表冠滚动",
                 "表冠划起来没动画开这个",
-                "enableSmoothScroll",
                 Settings.enableSmoothScroll
             )
             add<View>()
@@ -72,36 +70,30 @@ class 设置页 : SettingsActivity() {
     private fun GroupScope.switch(
         title: String,
         desc: String = "",
-        key: String,
-        value: Boolean
+        pref: Pref<Boolean>
     ) {
         baseEntry(title, desc) {
             add<Switch>()
-                .checked(value)
+                .checked(pref.value)
                 .weight(0.6f)
                 .doAfterSwitch {
-                    Settings.sp.edit {
-                        putBoolean(key, it)
-                    }
+                    pref.value = it
                 }
         }
     }
     private fun GroupScope.floatInput(
         title: String,
         desc: String = "",
-        key: String,
-        value: Float
+        pref: Pref<Float>
     ) {
         baseEntry(title, desc) {
             add<EditText>()
-                .text(value.toString())
+                .text(pref.value.toString())
                 .textSize(13f)
                 .textColor(0xFF_FFFFFF)
                 .weight(1f)
                 .doAfterTextChanged {
-                    Settings.sp.edit {
-                        putFloat(key, it.toString().toFloatOrNull() ?: value)
-                    }
+                    pref.value = it.toString().toFloatOrNull() ?: pref.value
                 }
         }
     }

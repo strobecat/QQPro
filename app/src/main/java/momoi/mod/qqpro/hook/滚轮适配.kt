@@ -34,7 +34,7 @@ class 滚轮适配配(context: Context) : ReportDialog(context) {
             -ev.getAxisValue(MotionEventCompat.AXIS_SCROLL) * ViewConfigurationCompat.getScaledVerticalScrollFactor(
                 ViewConfiguration.get(context), context
             )
-        if(Settings.enableSmoothScroll){
+        if(Settings.enableSmoothScroll.value){
             if(targetView is RecyclerView){
                 (targetView as RecyclerView).smoothScrollBy(0, delta.roundToInt())
             }
@@ -59,7 +59,7 @@ class 滚轮适配 : MainActivity() {
             -ev.getAxisValue(MotionEventCompat.AXIS_SCROLL) * ViewConfigurationCompat.getScaledVerticalScrollFactor(
                 ViewConfiguration.get(this), this
             )
-        if(Settings.enableSmoothScroll){
+        if(Settings.enableSmoothScroll.value){
             if(targetView is RecyclerView){
                 (targetView as RecyclerView).smoothScrollBy(0, delta.roundToInt())
             }
