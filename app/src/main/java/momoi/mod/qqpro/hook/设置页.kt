@@ -62,6 +62,11 @@ class 设置页 : SettingsActivity() {
                 "表冠划起来没动画开这个",
                 Settings.enableSmoothScroll
             )
+            switch(
+                "屏蔽返回键",
+                "用于米兔等会将右滑当作返回的手表",
+                Settings.blockBack
+            )
             add<View>()
                 .height(64.dp)
         }

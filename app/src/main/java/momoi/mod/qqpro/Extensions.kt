@@ -22,14 +22,17 @@ fun ViewGroup.forEachAll(block: (View) -> Unit) {
         child.asGroupOrNull()?.forEachAll(block)
     }
 }
-fun ViewGroup.anyAll(block: (View) -> Boolean): Boolean {
-    forEach {
-        if (block(it) || it.asGroupOrNull()?.anyAll(block) == true) {
-            return@anyAll true
+fun ViewGroup.findAll(block: (View) -> Boolean): View? {
+    forEach { child ->
+        if (block(child)) {
+            return@findAll child
+        } else child.asGroupOrNull()?.findAll(block)?.let {
+            return@findAll it
         }
     }
-    return false
+    return null
 }
+fun ViewGroup.anyAll(block: (View) -> Boolean) = findAll(block) != null
 
 fun String.removeBefore(key: String) = split(key, limit = 2)[1]
 fun String.removeAfter(key: String) = split(key, limit = 2)[0]
