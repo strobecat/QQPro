@@ -1,5 +1,6 @@
 package momoi.mod.qqpro.lib
 
+import android.graphics.drawable.Drawable
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
@@ -43,6 +44,9 @@ fun <T : View> T.background(color: Int) = apply {
 }
 fun <T : View> T.background(color: Long) = apply {
     setBackgroundColor(color.toInt())
+}
+fun <T : View> T.background(drawable: Drawable?) = apply {
+    background = drawable
 }
 fun <T : View> T.size(width: Int = layoutParams.width, height: Int = layoutParams.height) = apply {
     layoutParams.width = width
