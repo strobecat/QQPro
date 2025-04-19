@@ -61,6 +61,7 @@ inline fun download(url: String, file: File, crossinline callback: (Boolean) -> 
                         input.copyTo(out)
                     }
                 }
+                callback(true)
             } else {
                 callback(false)
                 Utils.log("Download Image Failed! $url")

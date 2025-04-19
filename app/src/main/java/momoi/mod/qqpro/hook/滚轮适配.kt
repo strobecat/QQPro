@@ -12,6 +12,7 @@ import androidx.core.view.ViewConfigurationCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.tencent.qqlive.module.videoreport.inject.dialog.ReportDialog
 import com.tencent.qqnt.watch.mainframe.MainActivity
+import com.tencent.richframework.widget.matrix.RFWMatrixImageView
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.Settings
 import momoi.mod.qqpro.Utils
@@ -34,14 +35,22 @@ class 滚轮适配配(context: Context) : ReportDialog(context) {
             -ev.getAxisValue(MotionEventCompat.AXIS_SCROLL) * ViewConfigurationCompat.getScaledVerticalScrollFactor(
                 ViewConfiguration.get(context), context
             )
-        if(Settings.enableSmoothScroll.value){
-            if(targetView is RecyclerView){
-                (targetView as RecyclerView).smoothScrollBy(0, delta.roundToInt())
+        (targetView as? RecyclerView)?.let {
+            if (Settings.enableSmoothScroll.value) {
+                it.smoothScrollBy(0, delta.roundToInt())
+            } else {
+                it.scrollBy(0, delta.roundToInt())
             }
-            if(targetView is ScrollView){
-                (targetView as ScrollView).smoothScrollBy(0, delta.roundToInt())
+        }
+        (targetView as? ScrollView)?.let {
+            if (Settings.enableSmoothScroll.value) {
+                it.smoothScrollBy(0, delta.roundToInt())
+            } else {
+                it.scrollBy(0, delta.roundToInt())
             }
-            return super.dispatchGenericMotionEvent(ev)
+        }
+        (targetView as? RFWMatrixImageView)?.let {
+            it.scale *= 1 + 0.1f * delta
         }
         targetView?.scrollBy(0, delta.roundToInt())
         return super.dispatchGenericMotionEvent(ev)
@@ -51,6 +60,7 @@ class 滚轮适配配(context: Context) : ReportDialog(context) {
 @Mixin
 class 滚轮适配 : MainActivity() {
     private var targetView: View? = null
+    private var action: (Any.(Float)->Unit)? = null
     override fun dispatchGenericMotionEvent(ev: MotionEvent): Boolean {
         if (targetView?.isInCenter() != true) {
             targetView = findTarget(window.decorView)
@@ -59,22 +69,24 @@ class 滚轮适配 : MainActivity() {
             -ev.getAxisValue(MotionEventCompat.AXIS_SCROLL) * ViewConfigurationCompat.getScaledVerticalScrollFactor(
                 ViewConfiguration.get(this), this
             )
-        if(Settings.enableSmoothScroll.value){
-            if(targetView is RecyclerView){
-                (targetView as RecyclerView).smoothScrollBy(0, delta.roundToInt())
+        (targetView as? RecyclerView)?.let {
+            if (Settings.enableSmoothScroll.value) {
+                it.smoothScrollBy(0, delta.roundToInt())
+            } else {
+                it.scrollBy(0, delta.roundToInt())
             }
-            if(targetView is ScrollView){
-                (targetView as ScrollView).smoothScrollBy(0, delta.roundToInt())
-            }
-            return super.dispatchGenericMotionEvent(ev)
         }
-        targetView?.scrollBy(0, delta.roundToInt())
+        (targetView as? ScrollView)?.let {
+            if (Settings.enableSmoothScroll.value) {
+                it.smoothScrollBy(0, delta.roundToInt())
+            } else {
+                it.scrollBy(0, delta.roundToInt())
+            }
+        }
+        (targetView as? RFWMatrixImageView)?.let {
+            it.scale = (it.scale * (1 + 0.001f * delta)).coerceIn(it.minimumScale, it.maximumScale)
+        }
         return super.dispatchGenericMotionEvent(ev)
-    }
-
-    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
-        findTarget(window.decorView)
-        return super.dispatchTouchEvent(ev)
     }
 }
 
@@ -84,7 +96,8 @@ private fun findTarget(rootView: View): View? {
         if (target != null) return@forEachAll
         val rv = (it as? RecyclerView)?.layoutManager?.canScrollVertically() == true
         val lv = it is ScrollView
-        if ((rv || lv) && it.isInCenter()) {
+        val iv = it is RFWMatrixImageView
+        if ((rv || lv || iv) && it.isInCenter()) {
             target = it
         }
     }

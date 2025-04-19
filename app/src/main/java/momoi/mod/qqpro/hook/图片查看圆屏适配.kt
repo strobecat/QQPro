@@ -14,8 +14,8 @@ class 图片查看圆屏适配(context: Context?, attributeSet: AttributeSet?) :
     context,
     attributeSet
 ) {
-    override fun getMaximumScale(): Float {
-        return super.getMaximumScale() * 2
+    override fun setMaximumScale(f: Float) {
+        super.setMaximumScale(f * 2)
     }
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
