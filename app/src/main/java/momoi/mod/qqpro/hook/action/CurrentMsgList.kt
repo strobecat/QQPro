@@ -1,8 +1,12 @@
 package momoi.mod.qqpro.hook.action
 
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import com.tencent.aio.api.list.IListUIOperationApi
+import com.tencent.aio.base.chat.ChatPie
 import com.tencent.aio.base.mvi.part.MsgListUiState
+import com.tencent.aio.main.fragment.ChatFragment
 import com.tencent.aio.part.root.panel.content.firstLevel.msglist.mvx.intent.`MsgListDataIntent$LoadTopPage`
 import com.tencent.mvi.api.help.CreateViewParams
 import com.tencent.watch.aio_impl.coreImpl.vb.WatchAIOListVB
@@ -21,8 +25,24 @@ object CurrentMsgList{
         return msgList.value.indexOf(msg)
     }
 
-    private fun loadMoreMsg() {
+    fun loadMoreMsg() {
         vb.L(`MsgListDataIntent$LoadTopPage`("WatchAIOListVB"))
+    }
+
+    fun upwardMsg(current: Int, count: Int, callback: (Int)->Unit) {
+        val target = msgList.value.size - 1 - current + count
+        upwardMsgInternal(target, callback)
+    }
+
+    private fun upwardMsgInternal(target: Int, callback: (Int)->Unit) {
+        if (msgList.value.size < target) {
+            msgList.observeOnce {
+                upwardMsgInternal(target, callback)
+            }
+            loadMoreMsg()
+        } else {
+            callback(msgList.value.size - target - 1)
+        }
     }
 
     fun findMsg(
@@ -51,6 +71,18 @@ object CurrentMsgList{
             super.n(state, uiHelper)
             vb = this
             msgList.update(state as List<WatchAIOMsgItem>)
+        }
+    }
+    @Mixin
+    class Clear : ChatPie() {
+        override fun a(
+            fragment: ChatFragment,
+            inflater: LayoutInflater,
+            container: ViewGroup,
+            isPreload: Boolean
+        ): View {
+            msgList.update(listOf())
+            return super.a(fragment, inflater, container, isPreload)
         }
     }
 

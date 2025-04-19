@@ -1,9 +1,11 @@
 package momoi.mod.qqpro.lib
 
+import java.util.Vector
+
 class Observable<T>(value: T) {
     var value = value
         private set
-    private val observerList = mutableListOf<Observer>()
+    private val observerList = Vector<Observer>()
     inner class Observer(val block: Observer.(T) -> Unit) {
         fun cancel() {
             observerList.remove(this)

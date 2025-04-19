@@ -2,6 +2,7 @@ package com.tencent.watch.aio_impl.coreImpl.vb;
 
 import android.view.View;
 
+import androidx.recyclerview.widget.AIORecycleView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.tencent.aio.api.list.IListUIOperationApi;
@@ -13,7 +14,7 @@ import com.tencent.mvi.api.help.CreateViewParams;
 import org.jetbrains.annotations.NotNull;
 
 public class WatchAIOListVB extends MsgListVBWrapper implements IMsgListBuild {
-    public RecyclerView H;
+    public AIORecycleView H;
     @NotNull
     public View h(@NotNull CreateViewParams createViewParams, @NotNull View childView, @NotNull IListUIOperationApi uiHelper) {
         return null;
