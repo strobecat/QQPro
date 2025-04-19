@@ -2,11 +2,15 @@ package com.tencent.richframework.widget.matrix;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.util.AttributeSet;
 
 import androidx.appcompat.widget.AppCompatImageView;
 
 public class RFWMatrixImageView extends AppCompatImageView {
-    public RFWMatrixImageView(Context context) {
+    public float getMaximumScale() {
+        return 0f;
+    }
+    public RFWMatrixImageView(Context context, AttributeSet attributeSet) {
         super(context);
     }
 }
