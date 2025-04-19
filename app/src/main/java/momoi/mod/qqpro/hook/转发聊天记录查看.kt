@@ -17,7 +17,9 @@ import com.tencent.qqlive.module.videoreport.inject.fragment.ReportAndroidXDialo
 import com.tencent.qqnt.kernel.api.impl.MsgService
 import com.tencent.qqnt.kernel.nativeinterface.Contact
 import com.tencent.qqnt.kernel.nativeinterface.MsgRecord
+import com.tencent.qqnt.kernel.nativeinterface.PicElement
 import com.tencent.qqnt.msg.KernelServiceUtil
+import com.tencent.richframework.widget.matrix.RFWMatrixImageView
 import com.tencent.watch.aio_impl.data.WatchAIOMsgItem
 import com.tencent.watch.aio_impl.ui.cell.base.BaseWatchItemCell
 import com.tencent.watch.aio_impl.ui.cell.unsupport.WatchToQQViewMsgItem
@@ -25,6 +27,7 @@ import com.tencent.watch.aio_impl.ui.widget.AIOCellGroupWidget
 import loadPicElement
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.hook.style.MyImageView
+import momoi.mod.qqpro.hook.view.MyDialogFragment
 import momoi.mod.qqpro.lib.FILL
 import momoi.mod.qqpro.hook.view.ReplyView
 import momoi.mod.qqpro.lib.background
@@ -48,26 +51,23 @@ import momoi.mod.qqpro.lib.textSize
 import momoi.mod.qqpro.lib.vertical
 import momoi.mod.qqpro.lib.width
 import momoi.mod.qqpro.removeAfter
+import momoi.mod.qqpro.showDialog
 import momoi.mod.qqpro.util.runOnUi
 import momoi.mod.qqpro.warp
 import java.util.ArrayList
 
-class DetailFragment(private val contact: Contact, private val data: MultiMsgData) : ReportAndroidXDialogFragment(),
-    `TopGestureLayout$OnGestureListener` {
-    override fun f() {
-        dismiss()
+class BigImageFragment(private val pic: PicElement) : MyDialogFragment() {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return RFWMatrixImageView(inflater.context, null)
+            .size(FILL, FILL)
+            .loadPicElement(pic)
     }
-
-    override fun p() {
-        dismiss()
-    }
-
-    @SuppressLint("ResourceType")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setStyle(STYLE_NO_TITLE, 2115174655)
-    }
-
+}
+class DetailFragment(private val contact: Contact, private val data: MultiMsgData) : MyDialogFragment() {
     private val mMsgList = mutableListOf<MsgRecord>()
     private lateinit var mRv: RecyclerView
     @SuppressLint("NotifyDataSetChanged")
@@ -145,6 +145,9 @@ class DetailFragment(private val contact: Contact, private val data: MultiMsgDat
                                         ele.picElement?.let {
                                             add<MyImageView>()
                                                 .size(it.picWidth, it.picHeight)
+                                                .clickable {
+                                                    showDialog(BigImageFragment(it))
+                                                }
                                                 .loadPicElement(it)
                                             return@forEach
                                         }
@@ -174,10 +177,7 @@ class MultiMsgCellGroup(context: Context) : AIOCellGroupWidget(context) {
                 .vertical()
                 .padding(2.dp)
                 .clickable {
-                    DetailFragment(contact, data).show(
-                        WatchPicElementExtKt.W(this).childFragmentManager,
-                        "MultiMsgDetail"
-                    )
+                    showDialog(DetailFragment(contact, data))
                 }
                 .content {
                     add<TextView>()
