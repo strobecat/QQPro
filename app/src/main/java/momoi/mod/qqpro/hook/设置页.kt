@@ -67,6 +67,11 @@ class 设置页 : SettingsActivity() {
                 "用于米兔等会将右滑当作返回的手表",
                 Settings.blockBack
             )
+            switch(
+                "输入键居中",
+                "在聊天页面将输入键居中放置",
+                Settings.swapCenterKeyboard
+            )
             add<View>()
                 .height(64.dp)
         }

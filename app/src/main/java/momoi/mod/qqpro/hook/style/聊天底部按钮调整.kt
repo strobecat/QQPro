@@ -15,17 +15,21 @@ import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.Settings
 import momoi.mod.qqpro.Utils
 import momoi.mod.qqpro.asGroup
+import momoi.mod.qqpro.drawable.roundCornerDrawable
 import momoi.mod.qqpro.lib.FILL
 import momoi.mod.qqpro.lib.GroupScope
 import momoi.mod.qqpro.lib.adjustViewBounds
 import momoi.mod.qqpro.lib.background
+import momoi.mod.qqpro.lib.bitmapDecodeAssets
 import momoi.mod.qqpro.lib.clickable
 import momoi.mod.qqpro.lib.content
+import momoi.mod.qqpro.lib.create
 import momoi.mod.qqpro.lib.dp
 import momoi.mod.qqpro.lib.gravity
 import momoi.mod.qqpro.lib.height
 import momoi.mod.qqpro.lib.imageResource
 import momoi.mod.qqpro.lib.margin
+import momoi.mod.qqpro.lib.marginHorizontal
 import momoi.mod.qqpro.lib.padding
 import momoi.mod.qqpro.lib.paddingHorizontal
 import momoi.mod.qqpro.lib.scaleType
@@ -44,6 +48,7 @@ class 聊天底部按钮调整 : `InputBarController$inputContent$2`() {
         val emoji = getChildAt(0)
         val keyboard = getChildAt(2)
         GroupScope(this).apply {
+            val roundBg = roundCornerDrawable(0xFF_1B9AF7.toInt(), 9999f)
             add<LinearLayout>()
                 .size(FILL, FILL)
                 .apply {
@@ -54,35 +59,50 @@ class 聊天底部按钮调整 : `InputBarController$inputContent$2`() {
                 .content {
                     add<ImageView>()
                         .height(FILL)
-                        .margin(right = 2.dp)
                         .adjustViewBounds()
                         .scaleType(ImageView.ScaleType.FIT_CENTER)
-                        .imageResource(2114453681)
+                        .background(roundBg)
+                        .bitmapDecodeAssets("pro/ic_emoji.png")
+                        .padding(8.dp)
                         .clickable {
                             emoji.callOnClick()
                         }
-                    val voice = add<ImageView>()
+                    val voice = create<ImageView>()
                         .height(FILL)
-                        .margin(right = 2.dp)
                         .adjustViewBounds()
-                        .background(ContextCompat.getDrawable(context, 2114457248))
-                        .imageResource(2114453680)
-                        .padding(8.dp)
+                        .background(roundBg)
+                        .bitmapDecodeAssets("pro/ic_voice.png")
+                        .padding(6.dp)
                         .scaleType(ImageView.ScaleType.FIT_CENTER)
                     ThreadManagerV2.getUIHandlerV2().post {
                         b.e.invoke(voice)
                     }
-                    add<TextView>()
+                    val input = if (Settings.text.isEmpty()) {
+                        create<ImageView>()
+                            .bitmapDecodeAssets("pro/ic_keyboard.png")
+                            .scaleType(ImageView.ScaleType.FIT_CENTER)
+                            .padding(8.dp)
+                    } else {
+                        create<TextView>()
+                            .gravity(Gravity.CENTER)
+                            .textSize(14f)
+                            .textColor(0xFF_FFFFFF)
+                            .text(Settings.text)
+                    }
                         .height(FILL)
                         .weight(1f)
                         .background(ContextCompat.getDrawable(context, 2114457248))
-                        .gravity(Gravity.CENTER)
-                        .textSize(14f)
-                        .textColor(0xFF_FFFFFF)
-                        .text(Settings.text)
                         .clickable {
                             keyboard.callOnClick()
                         }
+
+                    if (Settings.swapCenterKeyboard.value) {
+                        add(input.marginHorizontal(2.dp))
+                        add(voice)
+                    } else {
+                        add(voice.marginHorizontal(2.dp))
+                        add(input)
+                    }
                 }
         }
     }

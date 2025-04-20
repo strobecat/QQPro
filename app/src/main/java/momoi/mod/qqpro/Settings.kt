@@ -10,6 +10,7 @@ object Settings {
     val chatScale = FloatPref("chatScale", 0.93f)
     val enableSmoothScroll = BooleanPref("enableSmoothScroll", false)
     val blockBack = BooleanPref("blockBack", false)
+    val swapCenterKeyboard = BooleanPref("swapCenterKeyboard", false)
 
     private val moye = Utils.application.getSharedPreferences("wearqq", 0)
     val text get() = moye.getString("voice_btn_text", "发送消息")!!

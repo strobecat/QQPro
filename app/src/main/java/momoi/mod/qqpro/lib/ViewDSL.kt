@@ -7,15 +7,22 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import momoi.mod.qqpro.findMethod
 
 open class GroupScope(val group: ViewGroup) {
-    inline fun <reified T : View> add(): T {
-        val view = create<T>(
+    inline fun <reified T : View> create(): T {
+        return create<T>(
             group.context,
             group.javaClass.findMethod("generateDefaultLayoutParams").apply {
                 isAccessible = true
             }.invoke(group) as ViewGroup.LayoutParams
         ).size(WRAP, WRAP)
+    }
+    inline fun <reified T : View> add(): T {
+        val view = create<T>()
         group.addView(view)
         return view
+    }
+
+    fun add(view: View) {
+        group.addView(view)
     }
 }
 

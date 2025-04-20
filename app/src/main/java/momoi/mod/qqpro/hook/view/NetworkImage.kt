@@ -5,6 +5,7 @@ import android.widget.ImageView
 import com.tencent.qqnt.kernel.nativeinterface.PicElement
 import momoi.mod.qqpro.Utils
 import momoi.mod.qqpro.child
+import momoi.mod.qqpro.lib.bitmapDecodeFile
 import momoi.mod.qqpro.msg.getImageUrl
 import java.io.BufferedOutputStream
 import java.io.File
@@ -74,22 +75,3 @@ inline fun download(url: String, file: File, crossinline callback: (Boolean) -> 
         }
     }
 }
-
-fun ImageView.bitmapDecodeFile(file: File): Bitmap? =
-    file.inputStream().use {
-        val rect = Rect()
-        BitmapFactory.decodeStream(it, rect, BitmapFactory.Options().apply {
-            inJustDecodeBounds = true
-        })
-        val bitmap = BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply {
-            if (rect.height() > maxHeight) {
-                outHeight = maxHeight
-                outWidth = (rect.width().toFloat() / rect.height().toFloat() * maxHeight.toFloat()).toInt()
-                inSampleSize = rect.height() / maxHeight
-            }
-        })
-        post {
-            setImageBitmap(bitmap)
-        }
-        bitmap
-    }
