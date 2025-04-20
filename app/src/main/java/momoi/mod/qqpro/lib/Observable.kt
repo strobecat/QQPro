@@ -6,12 +6,13 @@ class Observable<T>(value: T) {
     var value = value
         private set
     private val observerList = Vector<Observer>()
-    inner class Observer(val block: Observer.(T) -> Unit) {
+    inner class Observer(var block: (Observer.(T) -> Unit)?) {
         fun cancel() {
-            observerList.remove(this)
+            block = null
         }
     }
     fun observe(block: Observer.(T) -> Unit) {
+        observerList.removeAll { it.block == null }
         observerList.add(Observer(block))
     }
     inline fun observeOnce(crossinline block: Observer.(T)->Unit) {
@@ -23,7 +24,7 @@ class Observable<T>(value: T) {
     fun update(value: T) {
         this.value = value
         observerList.forEach {
-            it.block(it, value)
+            it.block?.invoke(it, value)
         }
     }
 }
