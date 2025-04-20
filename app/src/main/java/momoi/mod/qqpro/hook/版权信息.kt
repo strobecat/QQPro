@@ -20,7 +20,7 @@ class 版权信息 : SelfFragment() {
         val result = super.Y(inflater, container, savedInstanceState)
         val tv = result.findViewById<TextView>(2114521808)
         tv.text = buildString {
-            appendLine("QQPro - v1.3.1")
+            appendLine("QQPro - v1.3.1-fix")
             appendLine()
             appendLine("更新日志：")
             appendLine("修复跳转首条未读消息的一些问题")

@@ -5,7 +5,7 @@ import androidx.core.content.edit
 
 object Settings {
     val sp: SharedPreferences = Utils.application.getSharedPreferences("qqpro", 0)
-    const val VERSION_CODE = 4
+    const val VERSION_CODE = 5
     val scale = FloatPref("scale", 0.9f)
     val chatScale = FloatPref("chatScale", 0.93f)
     val enableSmoothScroll = BooleanPref("enableSmoothScroll", false)

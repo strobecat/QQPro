@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.tencent.aio.api.list.IListUIOperationApi
 import com.tencent.mvi.api.help.CreateViewParams
 import com.tencent.watch.aio_impl.coreImpl.vb.WatchAIOListVB
+import com.tencent.watch.aio_impl.data.WatchAIOMsgItem
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.MsgUtil
 import momoi.mod.qqpro.Utils
@@ -38,7 +39,7 @@ class SkipAction(
 
     private fun format(count: Int) = "↑ ${count}条新消息"
     private var count = recent.unreadCntCached
-    private var lastUnread = 0
+    private var lastUnreadMsg: WatchAIOMsgItem? = null
     private var isClicked = false
 
     init {
@@ -50,21 +51,24 @@ class SkipAction(
                 if (isFinished) return
                 val first = (rv.layoutManager as AIOLayoutManager).findFirstVisibleItemPosition()
                 if (first == -1) return
-                count = (recent.unreadCntCached - CurrentMsgList.msgList.value.size + first).coerceAtMost(count)
-                lastUnread = first
-                if (count > 0) {
-                    tv.text = format(count)
-                } else {
-                    isFinished = true
-                    tv.visibility = View.GONE
+                val newCount = recent.unreadCntCached - CurrentMsgList.msgList.value.size + first
+                if (newCount < count) {
+                    count = newCount
+                    lastUnreadMsg = CurrentMsgList.msgList.value.getOrNull(first)
+                    if (count > 0) {
+                        tv.text = format(count)
+                    } else {
+                        isFinished = true
+                        tv.visibility = View.GONE
+                    }
                 }
             }
         })
     }
 
     override fun onClick(v: View?) {
-        if (!isClicked) {
-           CurrentMsgList.upwardMsg(lastUnread, count) {
+        if (!isClicked && lastUnreadMsg != null) {
+           CurrentMsgList.upwardMsg(CurrentMsgList.getMsgIndex(lastUnreadMsg!!), count) {
                 rv.smoothScrollToStart(it)
            }
         }
