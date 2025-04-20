@@ -9,7 +9,6 @@ import com.tencent.aio.base.mvi.part.MsgListUiState
 import com.tencent.aio.main.fragment.ChatFragment
 import com.tencent.aio.part.root.panel.content.firstLevel.msglist.mvx.intent.`MsgListDataIntent$LoadTopPage`
 import com.tencent.aio.part.root.panel.content.firstLevel.msglist.mvx.state.MsgListState
-import com.tencent.mvi.api.help.CreateViewParams
 import com.tencent.watch.aio_impl.coreImpl.vb.WatchAIOListVB
 import com.tencent.watch.aio_impl.data.WatchAIOMsgItem
 import momoi.anno.mixin.Mixin
@@ -79,14 +78,25 @@ object CurrentMsgList {
             vb = this
             val msg = msgList.value
             val list = state as MsgListState
-            val lastIndex = list.indexOfFirst { it.d.msgSeq == msg.getOrNull(0)?.d?.msgSeq }
+            val firstIndex = msg.firstOrNull()?.d?.msgSeq?.let { seq ->
+                list.indexOfFirst { it.d.msgSeq == seq }.let {
+                    if (it == -1) null else it
+                }
+            } ?: list.lastIndex
+            val lastIndex = msg.lastOrNull()?.d?.msgSeq?.let { seq ->
+                list.indexOfLast { it.d.msgSeq == seq }.let {
+                    if (it == -1) null else it
+                }
+            } ?: list.lastIndex
             msgList.update(
                 MsgListState(
                     state.b,
-                    if (lastIndex != -1) {
-                        list.subList(0, lastIndex) + msgList.value
-                    } else {
-                        list + msgList.value
+                    buildList {
+                        addAll(list.subList(0, firstIndex))
+                        addAll(msg)
+                        if (lastIndex < list.lastIndex) {
+                            addAll(list.subList(lastIndex, list.lastIndex + 1))
+                        }
                     },
                     state.c, state.d
                 )
