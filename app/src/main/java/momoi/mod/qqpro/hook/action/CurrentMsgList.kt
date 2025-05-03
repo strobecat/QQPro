@@ -78,29 +78,21 @@ object CurrentMsgList {
             vb = this
             val msg = msgList.value
             val list = state as MsgListState
-            val firstIndex = msg.firstOrNull()?.d?.msgSeq?.let { seq ->
-                list.indexOfFirst { it.d.msgSeq == seq }.let {
-                    if (it == -1) null else it
+            msg.lastOrNull()?.d?.msgSeq?.let { lastSeq ->
+                if (!list.any { it.d.msgSeq == lastSeq }) {
+                    val newLastSeq = list.last().d.msgSeq
+                    val lastIndex = msg.indexOfLast { it.d.msgSeq == newLastSeq }
+                    msgList.update(
+                        MsgListState(
+                            state.b,
+                            list + msg.subList(lastIndex + 1, msg.size),
+                            state.c, state.d
+                        )
+                    )
+                } else {
+                    msgList.update(state)
                 }
-            } ?: list.lastIndex
-            val lastIndex = msg.lastOrNull()?.d?.msgSeq?.let { seq ->
-                list.indexOfLast { it.d.msgSeq == seq }.let {
-                    if (it == -1) null else it
-                }
-            } ?: list.lastIndex
-            msgList.update(
-                MsgListState(
-                    state.b,
-                    buildList {
-                        addAll(list.subList(0, firstIndex))
-                        addAll(msg)
-                        if (lastIndex < list.lastIndex) {
-                            addAll(list.subList(lastIndex, list.lastIndex + 1))
-                        }
-                    },
-                    state.c, state.d
-                )
-            )
+            } ?: msgList.update(state)
             Utils.log("Msg lists updated. currentSize: ${msgList.value.size}")
             super.n(msgList.value, uiHelper)
         }

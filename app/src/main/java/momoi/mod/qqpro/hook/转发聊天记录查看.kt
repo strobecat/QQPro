@@ -40,11 +40,11 @@ import momoi.mod.qqpro.lib.gravity
 import momoi.mod.qqpro.lib.id
 import momoi.mod.qqpro.lib.layoutParams
 import momoi.mod.qqpro.lib.linearLayout
-import momoi.mod.qqpro.lib.margin
+import momoi.mod.qqpro.lib.*
 import momoi.mod.qqpro.lib.marginVertical
 import momoi.mod.qqpro.lib.padding
 import momoi.mod.qqpro.lib.paddingHorizontal
-import momoi.mod.qqpro.lib.size
+import momoi.mod.qqpro.lib.layoutParams
 import momoi.mod.qqpro.lib.text
 import momoi.mod.qqpro.lib.textColor
 import momoi.mod.qqpro.lib.textSize
@@ -63,7 +63,7 @@ class BigImageFragment(private val pic: PicElement) : MyDialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         return RFWMatrixImageView(inflater.context, null)
-            .size(FILL, FILL)
+            .layoutParams(ViewGroup.LayoutParams(FILL, FILL))
             .loadPicElement(pic)
     }
 }

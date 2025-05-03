@@ -50,7 +50,7 @@ class 滚轮适配配(context: Context) : ReportDialog(context) {
             }
         }
         (targetView as? RFWMatrixImageView)?.let {
-            it.scale *= 1 + 0.1f * delta
+            it.scale = (it.scale * (1 + 0.001f * delta)).coerceIn(it.minimumScale, it.maximumScale)
         }
         targetView?.scrollBy(0, delta.roundToInt())
         return super.dispatchGenericMotionEvent(ev)
