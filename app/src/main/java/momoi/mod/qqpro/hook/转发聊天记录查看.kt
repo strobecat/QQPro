@@ -16,19 +16,23 @@ import com.tencent.mobileqq.activity.fling.`TopGestureLayout$OnGestureListener`
 import com.tencent.qqlive.module.videoreport.inject.fragment.ReportAndroidXDialogFragment
 import com.tencent.qqnt.kernel.api.impl.MsgService
 import com.tencent.qqnt.kernel.nativeinterface.Contact
+import com.tencent.qqnt.kernel.nativeinterface.MsgElement
 import com.tencent.qqnt.kernel.nativeinterface.MsgRecord
 import com.tencent.qqnt.kernel.nativeinterface.PicElement
 import com.tencent.qqnt.msg.KernelServiceUtil
 import com.tencent.richframework.widget.matrix.RFWMatrixImageView
 import com.tencent.watch.aio_impl.data.WatchAIOMsgItem
+import com.tencent.watch.aio_impl.ext.MsgListUtilKt
 import com.tencent.watch.aio_impl.ui.cell.base.BaseWatchItemCell
 import com.tencent.watch.aio_impl.ui.cell.unsupport.WatchToQQViewMsgItem
 import com.tencent.watch.aio_impl.ui.widget.AIOCellGroupWidget
 import loadPicElement
 import momoi.anno.mixin.Mixin
+import momoi.mod.qqpro.MsgUtil
 import momoi.mod.qqpro.Settings
 import momoi.mod.qqpro.hook.action.CurrentMsgList
 import momoi.mod.qqpro.hook.style.MyImageView
+import momoi.mod.qqpro.hook.view.ForwardMsgView
 import momoi.mod.qqpro.hook.view.MyDialogFragment
 import momoi.mod.qqpro.lib.FILL
 import momoi.mod.qqpro.hook.view.ReplyView
@@ -65,7 +69,7 @@ class BigImageFragment(private val pic: PicElement) : MyDialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         return RFWMatrixImageView(inflater.context, null)
-            .size(FILL, FILL)
+            .layoutParams(ViewGroup.LayoutParams(FILL, FILL))
             .loadPicElement(pic)
     }
 }
@@ -129,6 +133,17 @@ class DetailFragment(private val contact: Contact, private val data: MultiMsgDat
                                     removeAllViews()
                                 }
                                 .content {
+                                    val textElements = mutableListOf<MsgElement>()
+                                    val applyTexts = {
+                                        if (textElements.isNotEmpty()) {
+                                            group.background(0xFF_515151.toInt())
+                                            add<TextView>()
+                                                .textSize(14f * Settings.chatScale.value)
+                                                .textColor(0xFF_FFFFFF.toInt())
+                                                .text(MsgListUtilKt.a(textElements))
+                                            textElements.clear()
+                                        }
+                                    }
                                     msg.elements.forEach { ele ->
                                         ele.replyElement?.let {
                                             group.background(0xFF_515151.toInt())
@@ -136,15 +151,14 @@ class DetailFragment(private val contact: Contact, private val data: MultiMsgDat
                                                 .loadData(contact, it)
                                             return@forEach
                                         }
-                                        ele.textElement?.let {
+                                        ele.multiForwardMsgElement?.let {
                                             group.background(0xFF_515151.toInt())
-                                            add<TextView>()
-                                                .textSize(14f * Settings.chatScale.value)
-                                                .textColor(0xFF_FFFFFF.toInt())
-                                                .text(it.content)
+                                            add<ForwardMsgView>()
+                                               .init(contact, MultiMsgData(contact, data.rootMsg, msg))
                                             return@forEach
                                         }
                                         ele.picElement?.let {
+                                            applyTexts()
                                             add<MyImageView>()
                                                 .size(it.picWidth, it.picHeight)
                                                 .clickable {
@@ -153,12 +167,9 @@ class DetailFragment(private val contact: Contact, private val data: MultiMsgDat
                                                 .loadPicElement(it)
                                             return@forEach
                                         }
-                                        group.background(0xFF_515151.toInt())
-                                        add<TextView>()
-                                            .textSize(14f * Settings.chatScale.value)
-                                            .textColor(0xFF_FFFF22.toInt())
-                                            .text("不支持的消息类型")
+                                        textElements.add(ele)
                                     }
+                                    applyTexts()
                                 }
                         })
             }
@@ -175,35 +186,13 @@ class MultiMsgCellGroup(context: Context) : AIOCellGroupWidget(context) {
 
     fun applyMultiMsg(contact: Contact, data: MultiMsgData) {
         if (multiMsgWidget == null) {
-            multiMsgWidget = create<LinearLayout>(context)
-                .vertical()
-                .padding(2.dp)
-                .clickable {
-                    showDialog(DetailFragment(contact, data))
-                }
-                .content {
-                    add<TextView>()
-                        .textSize(13f)
-                        .textColor(0xFF_FFFFFF.toInt())
-                        .text(data.title)
-                    add<TextView>()
-                        .textSize(12f)
-                        .textColor(0xFF_CCCCCC.toInt())
-                        .text(data.previewLines.dropLast(1).joinToString(separator = "\n"))
-                    add<View>()
-                        .size(width = FILL, height = 1)
-                        .background(0xFF_AAAAAA.toInt())
-                        .marginVertical(1.dp)
-                    add<TextView>()
-                        .textSize(10f)
-                        .textColor(0xFF_CCCCCC.toInt())
-                        .text(data.summary)
-                }
+            multiMsgWidget = create<ForwardMsgView>(context)
+                .init(contact, data)
             val warp = contentWidget.warp()
             warp.addView(multiMsgWidget, 0)
         }
-        contentWidget.visibility = View.GONE
-        multiMsgWidget?.visibility = View.VISIBLE
+        contentWidget.visibility = GONE
+        multiMsgWidget?.visibility = VISIBLE
     }
 }
 
@@ -226,7 +215,7 @@ class 显示控件 : BaseWatchItemCell() {
     }
 }
 
-class MultiMsgData(val contact: Contact, val rawMsg: MsgRecord) {
+class MultiMsgData(val contact: Contact, val rootMsg: MsgRecord, val rawMsg: MsgRecord) {
     val title: String
     val previewLines: List<String>
     val summary: String
@@ -250,7 +239,7 @@ class MultiMsgData(val contact: Contact, val rawMsg: MsgRecord) {
 
     fun getDetail(callback: (List<MsgRecord>) -> Unit) {
         (KernelServiceUtil.c() as? MsgService)?.service?.getMultiMsg(
-            contact, rawMsg.msgId, rawMsg.msgId
+            contact, rootMsg.msgId, rawMsg.msgId
         ) { i: Int, s: String, msgRecords: ArrayList<MsgRecord> ->
             callback(msgRecords)
         }
@@ -263,7 +252,7 @@ class MultiForwardMsg : WatchToQQViewMsgItem() {
     override fun o(context: Context?) {
         super.o(context)
         if (this.o == "[聊天记录]") {
-            multiData = MultiMsgData(l(), n)
+            multiData = MultiMsgData(l(), n, n)
         }
     }
 }
