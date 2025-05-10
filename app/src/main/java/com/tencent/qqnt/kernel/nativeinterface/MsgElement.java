@@ -10,9 +10,9 @@ public final class MsgElement {
     public byte[] extBufForUI;
     //public FaceBubbleElement faceBubbleElement;
     //public FaceElement faceElement;
-    //public FileElement fileElement;
+    public FileElement fileElement;
     //public GiphyElement giphyElement;
-    //public GrayTipElement grayTipElement;
+    public GrayTipElement grayTipElement;
     //public InlineKeyboardElement inlineKeyboardElement;
     //public LiveGiftElement liveGiftElement;
     //public MarkdownElement markdownElement;
@@ -20,7 +20,7 @@ public final class MsgElement {
     public MultiForwardMsgElement multiForwardMsgElement;
     public PicElement picElement;
     //public PrologueMsgElement prologueMsgElement;
-    //public PttElement pttElement;
+    public PttElement pttElement;
     //public AdelieRecommendedMsgElement recommendedMsgElement;
     public ReplyElement replyElement;
     public long serialVersionUID = 1;
@@ -31,7 +31,7 @@ public final class MsgElement {
     public TextElement textElement;
     //public TextGiftElement textGiftElement;
     //public TofuRecordElement tofuRecordElement;
-    //public VideoElement videoElement;
+    public VideoElement videoElement;
     //public WalletElement walletElement;
     //public YoloGameResultElement yoloGameResultElement;
 }
