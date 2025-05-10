@@ -26,6 +26,8 @@ import com.tencent.watch.aio_impl.ui.cell.unsupport.WatchToQQViewMsgItem
 import com.tencent.watch.aio_impl.ui.widget.AIOCellGroupWidget
 import loadPicElement
 import momoi.anno.mixin.Mixin
+import momoi.mod.qqpro.Settings
+import momoi.mod.qqpro.hook.action.CurrentMsgList
 import momoi.mod.qqpro.hook.style.MyImageView
 import momoi.mod.qqpro.hook.view.MyDialogFragment
 import momoi.mod.qqpro.lib.FILL
@@ -137,7 +139,7 @@ class DetailFragment(private val contact: Contact, private val data: MultiMsgDat
                                         ele.textElement?.let {
                                             group.background(0xFF_515151.toInt())
                                             add<TextView>()
-                                                .textSize(14f)
+                                                .textSize(14f * Settings.chatScale.value)
                                                 .textColor(0xFF_FFFFFF.toInt())
                                                 .text(it.content)
                                             return@forEach
@@ -153,7 +155,7 @@ class DetailFragment(private val contact: Contact, private val data: MultiMsgDat
                                         }
                                         group.background(0xFF_515151.toInt())
                                         add<TextView>()
-                                            .textSize(14f)
+                                            .textSize(14f * Settings.chatScale.value)
                                             .textColor(0xFF_FFFF22.toInt())
                                             .text("不支持的消息类型")
                                     }
@@ -167,8 +169,8 @@ class DetailFragment(private val contact: Contact, private val data: MultiMsgDat
 class MultiMsgCellGroup(context: Context) : AIOCellGroupWidget(context) {
     private var multiMsgWidget: View? = null
     fun recovery() {
-        multiMsgWidget?.visibility = View.GONE
-        contentWidget.visibility = View.VISIBLE
+        multiMsgWidget?.visibility = GONE
+        contentWidget.visibility = VISIBLE
     }
 
     fun applyMultiMsg(contact: Contact, data: MultiMsgData) {
