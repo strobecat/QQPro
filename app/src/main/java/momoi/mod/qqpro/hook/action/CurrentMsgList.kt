@@ -9,8 +9,10 @@ import com.tencent.aio.base.mvi.part.MsgListUiState
 import com.tencent.aio.main.fragment.ChatFragment
 import com.tencent.aio.part.root.panel.content.firstLevel.msglist.mvx.intent.`MsgListDataIntent$LoadTopPage`
 import com.tencent.aio.part.root.panel.content.firstLevel.msglist.mvx.state.MsgListState
+import com.tencent.qqnt.kernel.nativeinterface.MsgRecord
 import com.tencent.watch.aio_impl.coreImpl.vb.WatchAIOListVB
 import com.tencent.watch.aio_impl.data.WatchAIOMsgItem
+import com.tencent.watch.aio_impl.ext.MsgListUtilKt
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.Utils
 import momoi.mod.qqpro.lib.Observable
@@ -18,7 +20,7 @@ import momoi.mod.qqpro.lib.Observable
 object CurrentMsgList {
     lateinit var vb: WatchAIOListVB
         private set
-    var msgList = Observable(MsgListState())
+    var msgList = Observable(mutableListOf<WatchAIOMsgItem>())
         private set
 
     fun getMsgIndex(msg: WatchAIOMsgItem): Int {
@@ -78,31 +80,28 @@ object CurrentMsgList {
             vb = this
             val msg = msgList.value
             val list = state as MsgListState
-            val firstIndex = msg.firstOrNull()?.d?.msgSeq?.let { seq ->
-                list.indexOfFirst { it.d.msgSeq == seq }.let {
-                    if (it == -1) null else it
+            var insertIndex = -1
+            while (true) {
+                val last = list.pollLast()
+                if (last == null) {
+                    list.addAll(msg)
+                    break
                 }
-            } ?: list.lastIndex
-            val lastIndex = msg.lastOrNull()?.d?.msgSeq?.let { seq ->
-                list.indexOfLast { it.d.msgSeq == seq }.let {
-                    if (it == -1) null else it
+                val index = msg.indexOfLast { last.d.msgId == it.d.msgId }
+                if (index == -1) {
+                    if (insertIndex == -1) {
+                        msg.add(last)
+                        insertIndex = msg.lastIndex
+                    } else {
+                        msg.add(insertIndex, last)
+                    }
+                } else {
+                    list.addAll(msg.subList(index, msg.size))
+                    break
                 }
-            } ?: list.lastIndex
-            msgList.update(
-                MsgListState(
-                    state.b,
-                    buildList {
-                        addAll(list.subList(0, firstIndex))
-                        addAll(msg)
-                        if (lastIndex < list.lastIndex) {
-                            addAll(list.subList(lastIndex, list.lastIndex + 1))
-                        }
-                    },
-                    state.c, state.d
-                )
-            )
-            Utils.log("Msg lists updated. currentSize: ${msgList.value.size}")
-            super.n(msgList.value, uiHelper)
+            }
+            msgList.update(list.toMutableList())
+            super.n(list, uiHelper)
         }
     }
 
@@ -114,7 +113,7 @@ object CurrentMsgList {
             container: ViewGroup,
             isPreload: Boolean
         ): View {
-            msgList = Observable(MsgListState())
+            msgList = Observable(ArrayList())
             return super.a(fragment, inflater, container, isPreload)
         }
     }
