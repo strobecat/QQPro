@@ -7,6 +7,15 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 
 public class AIOCellGroupWidget extends FrameLayout {
+    /**
+     * nickContentDistance
+     */
+    public final int g = 0;
+    /**
+     * formatDateTime
+     */
+    public CharSequence f;
+
     public AIOCellGroupWidget(@NonNull Context context) {
         super(context);
     }
