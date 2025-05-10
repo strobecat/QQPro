@@ -1,6 +1,7 @@
 package momoi.mod.qqpro.hook.view
 
 import android.content.Context
+import android.text.TextUtils
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.tencent.qqnt.kernel.nativeinterface.Contact
@@ -24,7 +25,7 @@ import momoi.mod.qqpro.lib.vertical
 @Mixin
 class ReplyElementEx : ReplyElement() {
     var senderName: String? = null
-    var content: String? = null
+    var content: CharSequence? = null
 }
 
 class ReplyView(context: Context) : LinearLayout(context) {
@@ -44,6 +45,10 @@ class ReplyView(context: Context) : LinearLayout(context) {
                 mTvContent = add<TextView>()
                     .textSize(12f)
                     .textColor(Colors.replyText)
+                    .apply {
+                        maxLines = 2
+                        ellipsize = TextUtils.TruncateAt.END
+                    }
             }
     }
 
