@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "momoi.mod.qqpro"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.tencent.qqlite"
@@ -46,7 +46,7 @@ dependencies {
 }
 
 apkMixin {
-    versionName = "1.3.1-fix"
+    versionName = "1.3.1-fix2"
     targetApk = "source.apk"
     useProcessorCountAsThreadCount = project.properties["useProcessorCountAsThreadCount"] == "true"
 
