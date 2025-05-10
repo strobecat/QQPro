@@ -9,8 +9,10 @@ import com.tencent.aio.base.mvi.part.MsgListUiState
 import com.tencent.aio.main.fragment.ChatFragment
 import com.tencent.aio.part.root.panel.content.firstLevel.msglist.mvx.intent.`MsgListDataIntent$LoadTopPage`
 import com.tencent.aio.part.root.panel.content.firstLevel.msglist.mvx.state.MsgListState
+import com.tencent.qqnt.kernel.nativeinterface.MsgRecord
 import com.tencent.watch.aio_impl.coreImpl.vb.WatchAIOListVB
 import com.tencent.watch.aio_impl.data.WatchAIOMsgItem
+import com.tencent.watch.aio_impl.ext.MsgListUtilKt
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.Utils
 import momoi.mod.qqpro.lib.Observable
@@ -18,7 +20,7 @@ import momoi.mod.qqpro.lib.Observable
 object CurrentMsgList {
     lateinit var vb: WatchAIOListVB
         private set
-    var msgList = Observable(MsgListState())
+    var msgList = Observable(mutableListOf<WatchAIOMsgItem>())
         private set
 
     fun getMsgIndex(msg: WatchAIOMsgItem): Int {
@@ -73,28 +75,45 @@ object CurrentMsgList {
 
     @Mixin
     class Hook : WatchAIOListVB() {
+        private fun WatchAIOMsgItem.checkAndSetSameSender(check: WatchAIOMsgItem?) {
+            if (check?.d?.senderUid == this.d.senderUid) {
+                (this as AIOMsgEx).previousSame = true
+            }
+        }
         @Suppress("UNCHECKED_CAST")
         override fun n(state: MsgListUiState, uiHelper: IListUIOperationApi) {
             vb = this
             val msg = msgList.value
             val list = state as MsgListState
-            msg.lastOrNull()?.d?.msgSeq?.let { lastSeq ->
-                if (!list.any { it.d.msgSeq == lastSeq }) {
-                    val newLastSeq = list.last().d.msgSeq
-                    val lastIndex = msg.indexOfLast { it.d.msgSeq == newLastSeq }
-                    msgList.update(
-                        MsgListState(
-                            state.b,
-                            list + msg.subList(lastIndex + 1, msg.size),
-                            state.c, state.d
-                        )
-                    )
-                } else {
-                    msgList.update(state)
+            var insertIndex = -1
+            while (true) {
+                val last = list.pollLast()
+                if (last == null) {
+                    list.addAll(msg)
+                    break
                 }
-            } ?: msgList.update(state)
-            Utils.log("Msg lists updated. currentSize: ${msgList.value.size}")
-            super.n(msgList.value, uiHelper)
+                val index = msg.indexOfLast { last.d.msgId == it.d.msgId }
+                if (index == -1) {
+                    if (insertIndex == -1) {
+                        msg.add(last)
+                        insertIndex = msg.lastIndex
+                    } else {
+                        msg.add(insertIndex, last)
+                    }
+                } else {
+                    msg[index] = last
+                    //if (insertIndex == -1) {
+                    //    insertIndex = 0
+                    //}
+                    //for (i in insertIndex until msg.size) {
+                    //    msg[i].checkAndSetSameSender(msg.getOrNull(i-1))
+                    //}
+                    list.addAll(msg.subList(index, msg.size))
+                    break
+                }
+            }
+            msgList.update(list.toMutableList())
+            super.n(list, uiHelper)
         }
     }
 
@@ -106,7 +125,7 @@ object CurrentMsgList {
             container: ViewGroup,
             isPreload: Boolean
         ): View {
-            msgList = Observable(MsgListState())
+            msgList = Observable(ArrayList())
             return super.a(fragment, inflater, container, isPreload)
         }
     }
