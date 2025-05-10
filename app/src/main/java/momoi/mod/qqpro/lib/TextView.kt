@@ -14,8 +14,8 @@ fun <T : TextView> T.gravity(value: Int) = apply {
     gravity = value
 }
 
-fun <T : TextView> T.text(text: String) = apply {
-    if (text != this.text.toString()) {
+fun <T : TextView> T.text(text: CharSequence) = apply {
+    if (text != this.text) {
         this.text = text
     }
 }
