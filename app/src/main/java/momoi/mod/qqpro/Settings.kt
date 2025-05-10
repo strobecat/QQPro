@@ -5,7 +5,7 @@ import androidx.core.content.edit
 
 object Settings {
     val sp: SharedPreferences = Utils.application.getSharedPreferences("qqpro", 0)
-    const val VERSION_CODE = 5
+    const val VERSION_CODE = 7
     val scale = FloatPref("scale", 0.9f)
     val chatScale = FloatPref("chatScale", 0.93f)
     val enableSmoothScroll = BooleanPref("enableSmoothScroll", false)
@@ -13,7 +13,7 @@ object Settings {
     val swapCenterKeyboard = BooleanPref("swapCenterKeyboard", false)
 
     private val moye = Utils.application.getSharedPreferences("wearqq", 0)
-    val text get() = moye.getString("voice_btn_text", "发送消息")!!
+    val text get() = moye.getString("voice_btn_text", "")!!
 }
 
 abstract class Pref<T>(def: T) {

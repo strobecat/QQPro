@@ -89,6 +89,9 @@ object CurrentMsgList {
                 }
                 val index = msg.indexOfLast { last.d.msgId == it.d.msgId }
                 if (index == -1) {
+                    if (msg.last().d.senderUid == last.d.senderUid) {
+                        (last as AIOMsgEx).previousSame = true
+                    }
                     if (insertIndex == -1) {
                         msg.add(last)
                         insertIndex = msg.lastIndex
@@ -96,6 +99,7 @@ object CurrentMsgList {
                         msg.add(insertIndex, last)
                     }
                 } else {
+                    list[index] = last
                     list.addAll(msg.subList(index, msg.size))
                     break
                 }

@@ -20,17 +20,16 @@ class 版权信息 : SelfFragment() {
         val result = super.Y(inflater, container, savedInstanceState)
         val tv = result.findViewById<TextView>(2114521808)
         tv.text = buildString {
-            appendLine("QQPro - v1.3.1-fix")
+            appendLine("QQPro - v1.4")
             appendLine()
             appendLine("更新日志：")
-            appendLine("修复跳转首条未读消息的一些问题")
-            appendLine("修复原版就有的底部消息消失的bug")
-            appendLine("提升了看见聊天记录中图片的概率(?)")
-            appendLine("新设置：输入键居中")
-            appendLine("The first step for New-UI(designed by WD2345)")
+            appendLine("支持查看嵌套的聊天记录（最多三层，QQ限制）")
+            appendLine("聊天记录和回复可以看见黄脸表情")
+            appendLine("调整了消息长按菜单的位置")
+            appendLine("也许彻底修复了消息列表的闪退bug")
             appendLine()
             appendLine("交流群：392106734")
-            appendLine("2025/04/20")
+            appendLine("2025/05/10")
         }
         return result
     }

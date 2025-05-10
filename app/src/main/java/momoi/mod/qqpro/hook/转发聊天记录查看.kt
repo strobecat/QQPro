@@ -140,7 +140,7 @@ class DetailFragment(private val contact: Contact, private val data: MultiMsgDat
                                             add<TextView>()
                                                 .textSize(14f * Settings.chatScale.value)
                                                 .textColor(0xFF_FFFFFF.toInt())
-                                                .text(MsgListUtilKt.a(textElements))
+                                                .text(MsgUtil.summary(textElements))
                                             textElements.clear()
                                         }
                                     }
