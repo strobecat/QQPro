@@ -69,7 +69,7 @@ class SkipAction(
     override fun onClick(v: View?) {
         if (!isClicked && lastUnreadMsg != null) {
            CurrentMsgList.upwardMsg(CurrentMsgList.getMsgIndex(lastUnreadMsg!!), count) {
-                rv.smoothScrollToStart(it)
+                rv.scrollToPosition(it)
            }
         }
         isClicked = true
