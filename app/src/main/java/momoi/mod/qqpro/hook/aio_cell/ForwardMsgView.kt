@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.tencent.qqnt.kernel.nativeinterface.Contact
+import momoi.mod.qqpro.Settings
 import momoi.mod.qqpro.lib.FILL
 import momoi.mod.qqpro.lib.background
 import momoi.mod.qqpro.lib.clickable
@@ -35,17 +36,17 @@ class ForwardMsgView(context: Context) : LinearLayout(context) {
             .padding(2.dp)
             .content {
                 mTvTitle = add<TextView>()
-                    .textSize(13f)
+                    .textSize(13f * Settings.chatScale.value)
                     .textColor(0xFF_FFFFFF.toInt())
                 mTvPreview = add<TextView>()
-                    .textSize(12f)
+                    .textSize(12f * Settings.chatScale.value)
                     .textColor(0xFF_CCCCCC.toInt())
                 add<View>()
                     .size(width = FILL, height = 1)
                     .background(0xFF_AAAAAA.toInt())
                     .marginVertical(1.dp)
                 mTvSummary = add<TextView>()
-                    .textSize(10f)
+                    .textSize(10f * Settings.chatScale.value)
                     .textColor(0xFF_CCCCCC.toInt())
             }
     }

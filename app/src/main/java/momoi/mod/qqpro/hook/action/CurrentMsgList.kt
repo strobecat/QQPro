@@ -14,7 +14,7 @@ import com.tencent.watch.aio_impl.coreImpl.vb.WatchAIOListVB
 import com.tencent.watch.aio_impl.data.WatchAIOMsgItem
 import com.tencent.watch.aio_impl.ext.MsgListUtilKt
 import momoi.anno.mixin.Mixin
-import momoi.mod.qqpro.Utils
+import momoi.mod.qqpro.util.Utils
 import momoi.mod.qqpro.lib.Observable
 
 object CurrentMsgList {

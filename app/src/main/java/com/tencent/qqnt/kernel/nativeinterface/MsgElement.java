@@ -2,7 +2,7 @@ package com.tencent.qqnt.kernel.nativeinterface;
 
 public final class MsgElement {
     //public AdelieActionBarElement actionBarElement;
-    //public ArkElement arkElement;
+    public ArkElement arkElement;
     //public AVRecordElement avRecordElement;
     //public CalendarElement calendarElement;
     public long elementId;

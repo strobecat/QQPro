@@ -14,7 +14,7 @@ import androidx.core.widget.doAfterTextChanged
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.Pref
 import momoi.mod.qqpro.Settings
-import momoi.mod.qqpro.Utils
+import momoi.mod.qqpro.util.Utils
 import momoi.mod.qqpro.asGroup
 import momoi.mod.qqpro.forEachAll
 import momoi.mod.qqpro.lib.FILL

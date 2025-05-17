@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import com.tencent.richframework.widget.matrix.RFWMatrixImageView
 import momoi.anno.mixin.Mixin
-import momoi.mod.qqpro.Utils
+import momoi.mod.qqpro.util.Utils
 import kotlin.math.sqrt
 
 private val size = ((Utils.heightPixels - Utils.heightPixels / sqrt(2f)) / 2).toInt()

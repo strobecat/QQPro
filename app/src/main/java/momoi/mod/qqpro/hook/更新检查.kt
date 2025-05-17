@@ -7,7 +7,7 @@ import com.tencent.qqnt.watch.app.JumpActivity
 import com.tencent.qqnt.watch.mainframe.MainActivity
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.Settings
-import momoi.mod.qqpro.Utils
+import momoi.mod.qqpro.util.Utils
 import momoi.mod.qqpro.api.Http
 import java.io.BufferedReader
 import java.io.InputStreamReader

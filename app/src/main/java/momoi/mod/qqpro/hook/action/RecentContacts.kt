@@ -10,7 +10,7 @@ import com.tencent.qqnt.kernel.nativeinterface.RecentContactInfo
 import com.tencent.qqnt.watch.chat.list.WatchRecentContactHolder
 import com.tencent.qqnt.watch.chat.list.WatchRecentItemBuilder
 import momoi.anno.mixin.Mixin
-import momoi.mod.qqpro.Utils
+import momoi.mod.qqpro.util.Utils
 import mqq.app.AppRuntime
 
 object RecentContacts {

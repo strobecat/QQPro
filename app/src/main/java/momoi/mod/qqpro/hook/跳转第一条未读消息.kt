@@ -15,7 +15,7 @@ import com.tencent.watch.aio_impl.coreImpl.vb.WatchAIOListVB
 import com.tencent.watch.aio_impl.data.WatchAIOMsgItem
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.MsgUtil
-import momoi.mod.qqpro.Utils
+import momoi.mod.qqpro.util.Utils
 import momoi.mod.qqpro.asGroup
 import momoi.mod.qqpro.drawable.roundCornerDrawable
 import momoi.mod.qqpro.hook.action.CurrentContact

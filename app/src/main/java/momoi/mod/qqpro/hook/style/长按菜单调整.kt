@@ -9,7 +9,7 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.forEach
 import com.tencent.watch.aio_impl.ui.menu.AIOLongClickMenuFragment
 import momoi.anno.mixin.Mixin
-import momoi.mod.qqpro.Utils
+import momoi.mod.qqpro.util.Utils
 import momoi.mod.qqpro.asGroup
 import momoi.mod.qqpro.forEachAll
 import momoi.mod.qqpro.lib.FILL

@@ -3,7 +3,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Rect
 import android.widget.ImageView
 import com.tencent.qqnt.kernel.nativeinterface.PicElement
-import momoi.mod.qqpro.Utils
+import momoi.mod.qqpro.util.Utils
 import momoi.mod.qqpro.child
 import momoi.mod.qqpro.lib.bitmapDecodeFile
 import momoi.mod.qqpro.msg.getImageUrl
@@ -14,16 +14,19 @@ import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.concurrent.thread
 
-//TODO 优化逻辑
-fun ImageView.loadPicElement(pic: PicElement) = apply {
+// 抽取的加载图片 URL 的函数
+fun ImageView.loadPicUrl(url: String?, cacheFileName: String = "${System.currentTimeMillis() / 1000}${url.hashCode()}") = apply {
+    if (url.isNullOrEmpty()) {
+        return@apply
+    }
     require(maxHeight != 0)
-    val cacheFile = context.externalCacheDir!!.child("${pic.md5HexStr}.jpg")
+    val cacheFile = context.externalCacheDir!!.child("$cacheFileName.jpg")
     cacheFile.parentFile?.mkdirs()
     if (cacheFile.exists()) {
         Utils.log("Load Image from disk ${cacheFile.path}")
         bitmapDecodeFile(cacheFile)
     } else {
-        download(pic.getImageUrl(), cacheFile) { succeed ->
+        download(url, cacheFile) { succeed ->
             if (!succeed) {
                 val error = context.externalCacheDir!!.child("error.jpg")
                 if (error.exists()) {
@@ -35,11 +38,14 @@ fun ImageView.loadPicElement(pic: PicElement) = apply {
                         }
                     }
                 }
-            } else {
-                bitmapDecodeFile(cacheFile)
             }
         }
     }
+}
+
+fun ImageView.loadPicElement(pic: PicElement) = apply {
+    // 调用抽取的函数
+    loadPicUrl(pic.getImageUrl(), pic.md5HexStr)
 }
 
 inline fun download(url: String, file: File, crossinline callback: (Boolean) -> Unit) {

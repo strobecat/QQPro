@@ -5,7 +5,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothProfile
 import com.tencent.qqnt.qav_component_impl.qav.bussiness.QavBussinessCtrl
 import momoi.anno.mixin.Mixin
-import momoi.mod.qqpro.Utils
+import momoi.mod.qqpro.util.Utils
 
 @Mixin
 class 通话可使用蓝牙 : QavBussinessCtrl() {

@@ -13,7 +13,7 @@ import com.tencent.mobileqq.app.ThreadManagerV2
 import com.tencent.watch.aio_impl.coreImpl.vb.`InputBarController$inputContent$2`
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.Settings
-import momoi.mod.qqpro.Utils
+import momoi.mod.qqpro.util.Utils
 import momoi.mod.qqpro.asGroup
 import momoi.mod.qqpro.drawable.roundCornerDrawable
 import momoi.mod.qqpro.lib.FILL

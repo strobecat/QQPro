@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Rect
 import android.widget.ImageView
-import momoi.mod.qqpro.Utils
+import momoi.mod.qqpro.util.Utils
 import java.io.File
 import java.io.InputStream
 

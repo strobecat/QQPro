@@ -2,6 +2,7 @@ package momoi.mod.qqpro
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import momoi.mod.qqpro.util.Utils
 
 object Settings {
     val sp: SharedPreferences = Utils.application.getSharedPreferences("qqpro", 0)

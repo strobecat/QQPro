@@ -9,7 +9,8 @@ import com.tencent.qqnt.kernel.nativeinterface.ReplyElement
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.Colors
 import momoi.mod.qqpro.MsgUtil
-import momoi.mod.qqpro.Utils
+import momoi.mod.qqpro.Settings
+import momoi.mod.qqpro.util.Utils
 import momoi.mod.qqpro.join
 import momoi.mod.qqpro.lib.background
 import momoi.mod.qqpro.lib.content
@@ -38,10 +39,10 @@ class ReplyView(context: Context) : LinearLayout(context) {
             .paddingHorizontal(2.dp)
             .content {
                 mTvName = add<TextView>()
-                    .textSize(10f)
+                    .textSize(10f * Settings.chatScale.value)
                     .textColor(Colors.replyText)
                 mTvContent = add<TextView>()
-                    .textSize(12f)
+                    .textSize(12f * Settings.chatScale.value)
                     .textColor(Colors.replyText)
                     .apply {
                         maxLines = 2

@@ -15,7 +15,7 @@ import com.tencent.qqnt.watch.mainframe.MainActivity
 import com.tencent.richframework.widget.matrix.RFWMatrixImageView
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.Settings
-import momoi.mod.qqpro.Utils
+import momoi.mod.qqpro.util.Utils
 import momoi.mod.qqpro.asGroup
 import momoi.mod.qqpro.forEachAll
 import kotlin.math.roundToInt

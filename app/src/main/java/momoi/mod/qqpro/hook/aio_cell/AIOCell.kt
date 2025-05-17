@@ -38,6 +38,12 @@ object AIOCell {
                 loadData(CurrentContact, msg.forwardData!!)
             },
         )
+        addHook<CardMsgView>(
+            type = NTMsgType.ARKSTRUCT,
+            onBind = { msg, widget ->
+                loadData(msg.elements.firstNotNullOf { it.arkElement })
+            }
+        )
     }
     inline fun <reified T : View> addHook(
         type: Int,

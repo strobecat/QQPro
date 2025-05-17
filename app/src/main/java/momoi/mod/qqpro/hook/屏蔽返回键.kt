@@ -3,7 +3,7 @@ package momoi.mod.qqpro.hook
 import com.tencent.qqnt.watch.mainframe.MainActivity
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.Settings
-import momoi.mod.qqpro.Utils
+import momoi.mod.qqpro.util.Utils
 
 @Mixin
 class 屏蔽返回键 : MainActivity() {

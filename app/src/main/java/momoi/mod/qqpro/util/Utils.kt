@@ -1,14 +1,15 @@
-package momoi.mod.qqpro
+package momoi.mod.qqpro.util
 
 import android.annotation.SuppressLint
 import android.app.Application
-import android.content.Context
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.res.Resources
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import com.tencent.mobileqq.utils.TimeFormatterUtils
-
+import androidx.core.net.toUri
 
 object Utils {
     @SuppressLint("PrivateApi")
@@ -34,10 +35,19 @@ object Utils {
     fun log(msg: String) {
         Log.e("QQPro", msg)
     }
+
     val heightPixels = Resources.getSystem().displayMetrics.heightPixels
     val isRoundScreen = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         Resources.getSystem().configuration.isScreenRound
     } else {
         isDebug
+    }
+
+    fun openUrl(url: String) {
+        val intent = Intent(Intent.ACTION_VIEW, url.toUri())
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        if (intent.resolveActivity(application.packageManager) != null) {
+            application.startActivity(intent)
+        }
     }
 }
