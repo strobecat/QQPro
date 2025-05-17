@@ -7,6 +7,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.lifecycle.Lifecycle
@@ -68,14 +69,27 @@ class BigImageFragment(private val pic: PicElement) : MyDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return RFWMatrixImageView(inflater.context, null)
-            .layoutParams(ViewGroup.LayoutParams(FILL, FILL))
-            .loadPicElement(pic)
+        return FrameLayout(inflater.context)
+            .content {
+                add(
+                    RFWMatrixImageView(inflater.context, null)
+                        .layoutParams(ViewGroup.LayoutParams(FILL, FILL))
+                        .loadPicElement(pic)
+                )
+                add<View>()
+                    .size(FILL, 12.dp)
+                    .clickable {
+                        this@BigImageFragment.dismiss()
+                    }
+            }
     }
 }
-class DetailFragment(private val contact: Contact, private val data: MultiMsgData) : MyDialogFragment() {
+
+class DetailFragment(private val contact: Contact, private val data: MultiMsgData) :
+    MyDialogFragment() {
     private val mMsgList = mutableListOf<MsgRecord>()
     private lateinit var mRv: RecyclerView
+
     @SuppressLint("NotifyDataSetChanged")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         data.getDetail {
@@ -154,7 +168,10 @@ class DetailFragment(private val contact: Contact, private val data: MultiMsgDat
                                         ele.multiForwardMsgElement?.let {
                                             group.background(0xFF_515151.toInt())
                                             add<ForwardMsgView>()
-                                               .init(contact, MultiMsgData(contact, data.rootMsg, msg))
+                                                .init(
+                                                    contact,
+                                                    MultiMsgData(contact, data.rootMsg, msg)
+                                                )
                                             return@forEach
                                         }
                                         ele.picElement?.let {
@@ -209,7 +226,7 @@ class 显示控件 : BaseWatchItemCell() {
         super.i(view, item, p3, p4, p5, p6)
         (view as? MultiMsgCellGroup)?.let { cell ->
             (item as? MultiForwardMsg)?.multiData?.let {
-                cell.applyMultiMsg(this.f().l() ,it)
+                cell.applyMultiMsg(this.f().l(), it)
             } ?: cell.recovery()
         }
     }

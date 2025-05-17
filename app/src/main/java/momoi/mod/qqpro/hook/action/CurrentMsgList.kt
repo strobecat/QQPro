@@ -75,6 +75,11 @@ object CurrentMsgList {
 
     @Mixin
     class Hook : WatchAIOListVB() {
+        private fun WatchAIOMsgItem.checkAndSetSameSender(check: WatchAIOMsgItem?) {
+            if (check?.d?.senderUid == this.d.senderUid) {
+                (this as AIOMsgEx).previousSame = true
+            }
+        }
         @Suppress("UNCHECKED_CAST")
         override fun n(state: MsgListUiState, uiHelper: IListUIOperationApi) {
             vb = this
@@ -89,9 +94,6 @@ object CurrentMsgList {
                 }
                 val index = msg.indexOfLast { last.d.msgId == it.d.msgId }
                 if (index == -1) {
-                    if (msg.last().d.senderUid == last.d.senderUid) {
-                        (last as AIOMsgEx).previousSame = true
-                    }
                     if (insertIndex == -1) {
                         msg.add(last)
                         insertIndex = msg.lastIndex
@@ -99,7 +101,13 @@ object CurrentMsgList {
                         msg.add(insertIndex, last)
                     }
                 } else {
-                    list[index] = last
+                    msg[index] = last
+                    //if (insertIndex == -1) {
+                    //    insertIndex = 0
+                    //}
+                    //for (i in insertIndex until msg.size) {
+                    //    msg[i].checkAndSetSameSender(msg.getOrNull(i-1))
+                    //}
                     list.addAll(msg.subList(index, msg.size))
                     break
                 }
