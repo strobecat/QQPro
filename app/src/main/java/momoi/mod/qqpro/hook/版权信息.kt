@@ -24,6 +24,7 @@ class 版权信息 : SelfFragment() {
             appendLine()
             appendLine("更新日志：")
             appendLine("现在可以展示卡片信息和跳转链接")
+            appendLine("修复了回复消息内容显示问题")
             appendLine("移除了跳转未读消息的滚动动画")
             appendLine("修复圆屏长按菜单错位问题")
             appendLine()
