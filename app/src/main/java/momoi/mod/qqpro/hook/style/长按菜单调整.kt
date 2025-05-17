@@ -8,6 +8,7 @@ import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.forEach
 import com.tencent.watch.aio_impl.ui.menu.AIOLongClickMenuFragment
+import com.tencent.watch.aio_impl.ui.menu.MenuItemFactory
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.util.Utils
 import momoi.mod.qqpro.asGroup
@@ -29,6 +30,7 @@ val menuSort = arrayOf(
     "加好友",
     "删除",
 )
+
 private fun process(group: ViewGroup) {
     group.removeViewAt(0)
     val linear = group.getChildAt(0).asGroup()
@@ -67,13 +69,14 @@ private fun process(group: ViewGroup) {
 }
 
 @Mixin
-class 长按菜单透明 : AIOLongClickMenuFragment() {
+class 长按菜单透明(p0: (MenuItemFactory.ItemEnum) -> Unit, p1: String?) :
+    AIOLongClickMenuFragment(p0, p1) {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return super.onCreateView(inflater, container, savedInstanceState)?.apply {
+    ): View {
+        return super.onCreateView(inflater, container, savedInstanceState).apply {
             this.asGroup().getChildAt(0).asGroup().let { group ->
                 process(group)
             }

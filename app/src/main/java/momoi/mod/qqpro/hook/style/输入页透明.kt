@@ -10,8 +10,8 @@ import momoi.anno.mixin.Mixin
 
 @Mixin
 class 输入页透明 : InputMethodFragment() {
-    override fun Y(p1: LayoutInflater?, p2: ViewGroup?, p3: Bundle?): View {
-        return super.Y(p1, p2, p3).apply {
+    override fun Y(p1: LayoutInflater?, p2: ViewGroup?, p3: Bundle?): View? {
+        return super.Y(p1, p2, p3)?.apply {
             setBackgroundColor(0x77_000000)
         }
     }

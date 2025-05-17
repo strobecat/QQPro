@@ -38,15 +38,16 @@ android {
 
 dependencies {
     implementation(project(":ApkMixin-annotation"))
-
+    compileOnly(fileTree("./libs"))
     compileOnly(libs.androidx.fragment)
     compileOnly(libs.androidx.constraintlayout)
     compileOnly(libs.androidx.recyclerview)
     compileOnly(libs.androidx.viewpager2)
+    compileOnly(libs.androidx.core)
 }
 
 apkMixin {
-    versionName = "1.4"
+    versionName = "1.4.1"
     targetApk = "source.apk"
     useProcessorCountAsThreadCount = project.properties["useProcessorCountAsThreadCount"] == "true"
 

@@ -6,7 +6,7 @@ import momoi.mod.qqpro.util.Utils
 
 object Settings {
     val sp: SharedPreferences = Utils.application.getSharedPreferences("qqpro", 0)
-    const val VERSION_CODE = 7
+    const val VERSION_CODE = 8
     val scale = FloatPref("scale", 0.9f)
     val chatScale = FloatPref("chatScale", 0.93f)
     val enableSmoothScroll = BooleanPref("enableSmoothScroll", false)

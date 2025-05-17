@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.forEach
 import com.tencent.mobileqq.app.ThreadManagerV2
 import com.tencent.watch.aio_impl.coreImpl.vb.`InputBarController$inputContent$2`
+import com.tencent.watch.aio_impl.coreImpl.vb.InputBarControllerKt
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.Settings
 import momoi.mod.qqpro.util.Utils
@@ -39,7 +40,7 @@ import momoi.mod.qqpro.lib.textColor
 import momoi.mod.qqpro.lib.textSize
 
 @Mixin
-class 聊天底部按钮调整 : `InputBarController$inputContent$2`() {
+class 聊天底部按钮调整() : `InputBarController$inputContent$2`() {
     @SuppressLint("ResourceType", "ClickableViewAccessibility")
     override fun invoke(): Any = (super.invoke() as ConstraintLayout).apply {
         forEach {
@@ -49,50 +50,31 @@ class 聊天底部按钮调整 : `InputBarController$inputContent$2`() {
         val keyboard = getChildAt(2)
         GroupScope(this).apply {
             val roundBg = roundCornerDrawable(0xFF_1B9AF7.toInt(), 9999f)
-            add<LinearLayout>()
-                .size(FILL, FILL)
-                .apply {
+            add<LinearLayout>().size(FILL, FILL).apply {
                     if (Utils.isRoundScreen) {
                         paddingHorizontal((14.dp / Settings.scale.value).toInt())
                     }
-                }
-                .content {
-                    add<ImageView>()
-                        .height(FILL)
-                        .adjustViewBounds()
-                        .scaleType(ImageView.ScaleType.FIT_CENTER)
-                        .background(roundBg)
-                        .bitmapDecodeAssets("pro/ic_emoji.png")
-                        .padding(8.dp)
-                        .clickable {
+                }.content {
+                    add<ImageView>().height(FILL).adjustViewBounds()
+                        .scaleType(ImageView.ScaleType.FIT_CENTER).background(roundBg)
+                        .bitmapDecodeAssets("pro/ic_emoji.png").padding(8.dp).clickable {
                             emoji.callOnClick()
                         }
-                    val voice = create<ImageView>()
-                        .height(FILL)
-                        .adjustViewBounds()
-                        .background(roundBg)
-                        .bitmapDecodeAssets("pro/ic_voice.png")
-                        .padding(6.dp)
-                        .scaleType(ImageView.ScaleType.FIT_CENTER)
+                    val voice =
+                        create<ImageView>().height(FILL).adjustViewBounds().background(roundBg)
+                            .bitmapDecodeAssets("pro/ic_voice.png").padding(6.dp)
+                            .scaleType(ImageView.ScaleType.FIT_CENTER)
                     ThreadManagerV2.getUIHandlerV2().post {
                         b.e.invoke(voice)
                     }
                     val input = if (Settings.text.isEmpty()) {
-                        create<ImageView>()
-                            .bitmapDecodeAssets("pro/ic_keyboard.png")
-                            .scaleType(ImageView.ScaleType.FIT_CENTER)
-                            .padding(8.dp)
+                        create<ImageView>().bitmapDecodeAssets("pro/ic_keyboard.png")
+                            .scaleType(ImageView.ScaleType.FIT_CENTER).padding(8.dp)
                     } else {
-                        create<TextView>()
-                            .gravity(Gravity.CENTER)
-                            .textSize(14f)
-                            .textColor(0xFF_FFFFFF)
-                            .text(Settings.text)
-                    }
-                        .height(FILL)
-                        .weight(1f)
-                        .background(ContextCompat.getDrawable(context, 2114457248))
-                        .clickable {
+                        create<TextView>().gravity(Gravity.CENTER).textSize(14f)
+                            .textColor(0xFF_FFFFFF).text(Settings.text)
+                    }.height(FILL).weight(1f)
+                        .background(ContextCompat.getDrawable(context, 2114457248)).clickable {
                             keyboard.callOnClick()
                         }
 

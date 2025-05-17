@@ -2,7 +2,6 @@ package momoi.mod.qqpro.hook
 
 import android.content.Context
 import android.content.res.Resources
-import android.os.Build
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
@@ -15,7 +14,6 @@ import com.tencent.qqnt.watch.mainframe.MainActivity
 import com.tencent.richframework.widget.matrix.RFWMatrixImageView
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.Settings
-import momoi.mod.qqpro.util.Utils
 import momoi.mod.qqpro.asGroup
 import momoi.mod.qqpro.forEachAll
 import kotlin.math.roundToInt

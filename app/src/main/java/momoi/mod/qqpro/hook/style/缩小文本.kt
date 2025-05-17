@@ -13,17 +13,17 @@ import momoi.mod.qqpro.Settings
 import momoi.mod.qqpro.asGroupOrNull
 
 @Mixin
-class 缩小文本 : BaseWatchItemCell() {
+abstract class 缩小文本 : BaseWatchItemCell<WatchAIOMsgItem, View>() {
     override fun i(
-        view: View?,
-        item: WatchAIOMsgItem?,
-        p3: Int,
-        p4: MutableList<*>?,
-        p5: Lifecycle?,
-        p6: LifecycleOwner?
+        view: View,
+        item: WatchAIOMsgItem,
+        p2: Int,
+        p3: List<Any>,
+        p4: Lifecycle,
+        p5: LifecycleOwner?
     ) {
-        super.i(view, item, p3, p4, p5, p6)
-        (view as? AIOCellGroupWidget)?.contentWidget?.let { content ->
+        super.i(view, item, p2, p3, p4, p5)
+        (view as? AIOCellGroupWidget)?.getContentWidget<View>()?.let { content ->
             content.asGroupOrNull()?.forEach {
                 resize(it)
             } ?: resize(content)

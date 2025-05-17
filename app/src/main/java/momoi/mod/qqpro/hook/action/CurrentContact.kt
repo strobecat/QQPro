@@ -3,6 +3,7 @@ package momoi.mod.qqpro.hook.action
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.tencent.aio.api.factory.IAIOFactory
 import com.tencent.aio.base.chat.ChatPie
 import com.tencent.aio.data.AIOContact
 import com.tencent.aio.main.fragment.ChatFragment
@@ -12,7 +13,7 @@ import momoi.anno.mixin.Mixin
 val CurrentContact = Contact(0, "", "")
 
 @Mixin
-class Hook : ChatPie() {
+class Hook(p0: IAIOFactory) : ChatPie(p0) {
     override fun a(
         fragment: ChatFragment,
         inflater: LayoutInflater,

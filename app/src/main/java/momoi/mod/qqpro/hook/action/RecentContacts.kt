@@ -22,7 +22,7 @@ object RecentContacts {
     )
 
     @Mixin
-    class Hook : WatchRecentItemBuilder() {
+    abstract class Hook : WatchRecentItemBuilder() {
         override fun t(item: RecentContactChatItem, holder: WatchRecentContactHolder) {
             Utils.log("load recent contact: ${item.a.peerName}, unreadCnt: ${item.a.unreadCnt}, chatCnt: ${item.a.unreadChatCnt}, peerUid: ${item.a.peerUid}")
             map[item.a.peerUid] = Data(

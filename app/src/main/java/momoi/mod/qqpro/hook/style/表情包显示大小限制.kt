@@ -9,7 +9,7 @@ import momoi.anno.mixin.Mixin
 val heightLimit = Resources.getSystem().displayMetrics.heightPixels * 0.5f
 
 @Mixin
-class 表情包显示大小限制(context: Context?) : RoundBubbleImageView(context) {
+class 表情包显示大小限制(context: Context) : RoundBubbleImageView(context) {
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         maxHeight = heightLimit.toInt()

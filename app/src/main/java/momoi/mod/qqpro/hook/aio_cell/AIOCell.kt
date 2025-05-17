@@ -18,6 +18,7 @@ import java.lang.ref.WeakReference
 import java.util.WeakHashMap
 
 object AIOCell {
+    val AIOCellGroupWidget.contentWidget get() = this.getContentWidget<View>()!!
     val hooks = mutableListOf<Hook<*>>()
     init {
         addHook<ReplyView>(
@@ -93,14 +94,20 @@ object AIOCell {
     }
 
     @Mixin
-    class HookCell : BaseWatchItemCell() {
-        override fun reply_item(view: View?, watchAIOMsgItem: WatchAIOMsgItem) {}
+    abstract class HookCell : BaseWatchItemCell<WatchAIOMsgItem, View>() {
+        override fun reply_item(
+            p0: View?,
+            p1: WatchAIOMsgItem,
+            p2: Int,
+            p3: List<Any>
+        ) {}
+
         override fun i(
-            view: View?,
+            view: View,
             item: WatchAIOMsgItem,
             p3: Int,
-            p4: MutableList<*>?,
-            p5: Lifecycle?,
+            p4: List<Any>,
+            p5: Lifecycle,
             p6: LifecycleOwner?
         ) {
             super.i(view, item, p3, p4, p5, p6)

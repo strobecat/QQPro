@@ -3,11 +3,12 @@ package momoi.mod.qqpro.hook.action
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.tencent.aio.api.factory.IAIOFactory
 import com.tencent.aio.api.list.IListUIOperationApi
 import com.tencent.aio.base.chat.ChatPie
 import com.tencent.aio.base.mvi.part.MsgListUiState
 import com.tencent.aio.main.fragment.ChatFragment
-import com.tencent.aio.part.root.panel.content.firstLevel.msglist.mvx.intent.`MsgListDataIntent$LoadTopPage`
+import com.tencent.aio.part.root.panel.content.firstLevel.msglist.mvx.intent.MsgListDataIntent
 import com.tencent.aio.part.root.panel.content.firstLevel.msglist.mvx.state.MsgListState
 import com.tencent.qqnt.kernel.nativeinterface.MsgRecord
 import com.tencent.watch.aio_impl.coreImpl.vb.WatchAIOListVB
@@ -16,6 +17,7 @@ import com.tencent.watch.aio_impl.ext.MsgListUtilKt
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.util.Utils
 import momoi.mod.qqpro.lib.Observable
+import java.util.LinkedList
 
 object CurrentMsgList {
     lateinit var vb: WatchAIOListVB
@@ -35,7 +37,7 @@ object CurrentMsgList {
             }
             isLoadingMsg = true
             Utils.log("Load more msg. currentSize: ${msgList.value.size}")
-            vb.L(`MsgListDataIntent$LoadTopPage`("WatchAIOListVB"))
+            vb.L(MsgListDataIntent.LoadTopPage("WatchAIOListVB"))
         }
     }
 
@@ -79,7 +81,7 @@ object CurrentMsgList {
         override fun n(state: MsgListUiState, uiHelper: IListUIOperationApi) {
             vb = this
             val msg = msgList.value
-            val list = state as MsgListState
+            val list = state as LinkedList<WatchAIOMsgItem>
             var insertIndex = -1
             while (true) {
                 val last = list.pollLast()
@@ -108,12 +110,12 @@ object CurrentMsgList {
                 }
             }
             msgList.update(list.toMutableList())
-            super.n(list, uiHelper)
+            super.n(list as MsgListUiState, uiHelper)
         }
     }
 
     @Mixin
-    class Clear : ChatPie() {
+    class Clear(p0: IAIOFactory) : ChatPie(p0) {
         override fun a(
             fragment: ChatFragment,
             inflater: LayoutInflater,

@@ -76,7 +76,7 @@ object MsgUtil {
 
 fun View.showDialog(dialog: MyDialogFragment) {
     dialog.show(
-        WatchPicElementExtKt.W(this).childFragmentManager,
+        WatchPicElementExtKt.W(this)!!.childFragmentManager,
         Random.nextInt().toString()
     )
 }
