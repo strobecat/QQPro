@@ -18,6 +18,7 @@ import momoi.mod.qqpro.lib.background
 import momoi.mod.qqpro.lib.create
 import momoi.mod.qqpro.lib.dp
 import momoi.mod.qqpro.lib.height
+import momoi.mod.qqpro.lib.wh
 import momoi.mod.qqpro.lib.width
 
 val menuSort = arrayOf(
@@ -47,7 +48,7 @@ private fun process(group: ViewGroup) {
     if (Utils.isRoundScreen) {
         LinearScope(linear).add<View>()
             .width(FILL)
-            .height(54.dp)
+            .height(0.24f.wh)
     }
     menuSort.forEach {
         items[it]?.let { item ->
@@ -56,13 +57,13 @@ private fun process(group: ViewGroup) {
     }
     items.values.forEach {
         if (it.parent == null) {
-            linear.addView(it, 0)
+            linear.addView(it, 1)
         }
     }
     if (Utils.isRoundScreen) {
         LinearScope(linear).add<View>()
             .width(FILL)
-            .height(54.dp)
+            .height(0.24f.wh)
     }
 }
 
