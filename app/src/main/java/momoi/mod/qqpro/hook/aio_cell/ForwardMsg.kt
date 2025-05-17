@@ -1,7 +1,6 @@
-package momoi.mod.qqpro.hook
+package momoi.mod.qqpro.hook.aio_cell
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -10,11 +9,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
-import com.tencent.mobileqq.activity.fling.`TopGestureLayout$OnGestureListener`
-import com.tencent.qqlive.module.videoreport.inject.fragment.ReportAndroidXDialogFragment
 import com.tencent.qqnt.kernel.api.impl.MsgService
 import com.tencent.qqnt.kernel.nativeinterface.Contact
 import com.tencent.qqnt.kernel.nativeinterface.MsgElement
@@ -22,21 +17,12 @@ import com.tencent.qqnt.kernel.nativeinterface.MsgRecord
 import com.tencent.qqnt.kernel.nativeinterface.PicElement
 import com.tencent.qqnt.msg.KernelServiceUtil
 import com.tencent.richframework.widget.matrix.RFWMatrixImageView
-import com.tencent.watch.aio_impl.data.WatchAIOMsgItem
-import com.tencent.watch.aio_impl.ext.MsgListUtilKt
-import com.tencent.watch.aio_impl.ui.cell.base.BaseWatchItemCell
-import com.tencent.watch.aio_impl.ui.cell.unsupport.WatchToQQViewMsgItem
-import com.tencent.watch.aio_impl.ui.widget.AIOCellGroupWidget
 import loadPicElement
-import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.MsgUtil
 import momoi.mod.qqpro.Settings
-import momoi.mod.qqpro.hook.action.CurrentMsgList
 import momoi.mod.qqpro.hook.style.MyImageView
-import momoi.mod.qqpro.hook.view.ForwardMsgView
 import momoi.mod.qqpro.hook.view.MyDialogFragment
 import momoi.mod.qqpro.lib.FILL
-import momoi.mod.qqpro.hook.view.ReplyView
 import momoi.mod.qqpro.lib.background
 import momoi.mod.qqpro.lib.clickable
 import momoi.mod.qqpro.lib.content
@@ -48,10 +34,8 @@ import momoi.mod.qqpro.lib.id
 import momoi.mod.qqpro.lib.layoutParams
 import momoi.mod.qqpro.lib.linearLayout
 import momoi.mod.qqpro.lib.*
-import momoi.mod.qqpro.lib.marginVertical
 import momoi.mod.qqpro.lib.padding
 import momoi.mod.qqpro.lib.paddingHorizontal
-import momoi.mod.qqpro.lib.layoutParams
 import momoi.mod.qqpro.lib.text
 import momoi.mod.qqpro.lib.textColor
 import momoi.mod.qqpro.lib.textSize
@@ -60,7 +44,6 @@ import momoi.mod.qqpro.lib.width
 import momoi.mod.qqpro.removeAfter
 import momoi.mod.qqpro.showDialog
 import momoi.mod.qqpro.util.runOnUi
-import momoi.mod.qqpro.warp
 import java.util.ArrayList
 
 class BigImageFragment(private val pic: PicElement) : MyDialogFragment() {
@@ -85,7 +68,7 @@ class BigImageFragment(private val pic: PicElement) : MyDialogFragment() {
     }
 }
 
-class DetailFragment(private val contact: Contact, private val data: MultiMsgData) :
+class DetailFragment(private val contact: Contact, private val data: ForwardMsgData) :
     MyDialogFragment() {
     private val mMsgList = mutableListOf<MsgRecord>()
     private lateinit var mRv: RecyclerView
@@ -168,9 +151,9 @@ class DetailFragment(private val contact: Contact, private val data: MultiMsgDat
                                         ele.multiForwardMsgElement?.let {
                                             group.background(0xFF_515151.toInt())
                                             add<ForwardMsgView>()
-                                                .init(
+                                                .loadData(
                                                     contact,
-                                                    MultiMsgData(contact, data.rootMsg, msg)
+                                                    ForwardMsgData(contact, data.rootMsg, msg)
                                                 )
                                             return@forEach
                                         }
@@ -193,46 +176,7 @@ class DetailFragment(private val contact: Contact, private val data: MultiMsgDat
     }
 }
 
-@Mixin
-class MultiMsgCellGroup(context: Context) : AIOCellGroupWidget(context) {
-    private var multiMsgWidget: View? = null
-    fun recovery() {
-        multiMsgWidget?.visibility = GONE
-        contentWidget.visibility = VISIBLE
-    }
-
-    fun applyMultiMsg(contact: Contact, data: MultiMsgData) {
-        if (multiMsgWidget == null) {
-            multiMsgWidget = create<ForwardMsgView>(context)
-                .init(contact, data)
-            val warp = contentWidget.warp()
-            warp.addView(multiMsgWidget, 0)
-        }
-        contentWidget.visibility = GONE
-        multiMsgWidget?.visibility = VISIBLE
-    }
-}
-
-@Mixin
-class 显示控件 : BaseWatchItemCell() {
-    override fun i(
-        view: View?,
-        item: WatchAIOMsgItem?,
-        p3: Int,
-        p4: MutableList<*>?,
-        p5: Lifecycle?,
-        p6: LifecycleOwner?
-    ) {
-        super.i(view, item, p3, p4, p5, p6)
-        (view as? MultiMsgCellGroup)?.let { cell ->
-            (item as? MultiForwardMsg)?.multiData?.let {
-                cell.applyMultiMsg(this.f().l(), it)
-            } ?: cell.recovery()
-        }
-    }
-}
-
-class MultiMsgData(val contact: Contact, val rootMsg: MsgRecord, val rawMsg: MsgRecord) {
+class ForwardMsgData(val contact: Contact, val rootMsg: MsgRecord, val rawMsg: MsgRecord) {
     val title: String
     val previewLines: List<String>
     val summary: String
@@ -259,17 +203,6 @@ class MultiMsgData(val contact: Contact, val rootMsg: MsgRecord, val rawMsg: Msg
             contact, rootMsg.msgId, rawMsg.msgId
         ) { i: Int, s: String, msgRecords: ArrayList<MsgRecord> ->
             callback(msgRecords)
-        }
-    }
-}
-
-@Mixin
-class MultiForwardMsg : WatchToQQViewMsgItem() {
-    var multiData: MultiMsgData? = null
-    override fun o(context: Context?) {
-        super.o(context)
-        if (this.o == "[聊天记录]") {
-            multiData = MultiMsgData(l(), n, n)
         }
     }
 }

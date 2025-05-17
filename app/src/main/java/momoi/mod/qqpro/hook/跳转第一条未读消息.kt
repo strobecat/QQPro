@@ -83,7 +83,7 @@ class 跳转第一条未读消息 : WatchAIOListVB() {
         childView: View,
         uiHelper: IListUIOperationApi
     ): View = FrameScope(super.h(createViewParams, childView, uiHelper) as FrameLayout).apply {
-        val peerUid = CurrentContact.value?.peerUid
+        val peerUid = CurrentContact.peerUid
         Utils.log("current peerUid: $peerUid")
         RecentContacts.get(peerUid)?.let { recent ->
             Utils.log("unreadCntCached: ${recent.unreadCntCached}")

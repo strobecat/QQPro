@@ -9,22 +9,21 @@ import com.tencent.aio.main.fragment.ChatFragment
 import com.tencent.qqnt.kernel.nativeinterface.Contact
 import momoi.anno.mixin.Mixin
 
-object CurrentContact {
-    var value: Contact? = null
-        private set
+val CurrentContact = Contact(0, "", "")
 
-    @Mixin
-    class Hook : ChatPie() {
-        override fun a(
-            fragment: ChatFragment,
-            inflater: LayoutInflater,
-            container: ViewGroup,
-            isPreload: Boolean
-        ): View {
-            e?.b?.b?.let {
-                value = Contact(it.b, it.c, it.d)
-            }
-            return super.a(fragment, inflater, container, isPreload)
+@Mixin
+class Hook : ChatPie() {
+    override fun a(
+        fragment: ChatFragment,
+        inflater: LayoutInflater,
+        container: ViewGroup,
+        isPreload: Boolean
+    ): View {
+        e?.b?.b?.let {
+            CurrentContact.chatType = it.b
+            CurrentContact.peerUid = it.c
+            CurrentContact.guildId = it.d
         }
+        return super.a(fragment, inflater, container, isPreload)
     }
 }

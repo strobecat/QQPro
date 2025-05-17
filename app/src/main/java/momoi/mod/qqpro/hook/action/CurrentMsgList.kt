@@ -75,11 +75,6 @@ object CurrentMsgList {
 
     @Mixin
     class Hook : WatchAIOListVB() {
-        private fun WatchAIOMsgItem.checkAndSetSameSender(check: WatchAIOMsgItem?) {
-            if (check?.d?.senderUid == this.d.senderUid) {
-                (this as AIOMsgEx).previousSame = true
-            }
-        }
         @Suppress("UNCHECKED_CAST")
         override fun n(state: MsgListUiState, uiHelper: IListUIOperationApi) {
             vb = this

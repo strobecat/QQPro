@@ -1,4 +1,4 @@
-package momoi.mod.qqpro.hook.view
+package momoi.mod.qqpro.hook.aio_cell
 
 import android.content.Context
 import android.text.TextUtils
@@ -11,8 +11,6 @@ import momoi.mod.qqpro.Colors
 import momoi.mod.qqpro.MsgUtil
 import momoi.mod.qqpro.Utils
 import momoi.mod.qqpro.join
-import momoi.mod.qqpro.lib.FILL
-import momoi.mod.qqpro.lib.WRAP
 import momoi.mod.qqpro.lib.background
 import momoi.mod.qqpro.lib.content
 import momoi.mod.qqpro.lib.dp
