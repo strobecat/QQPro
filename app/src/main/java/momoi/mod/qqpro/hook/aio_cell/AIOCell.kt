@@ -8,9 +8,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import com.tencent.watch.aio_impl.data.WatchAIOMsgItem
 import com.tencent.watch.aio_impl.ui.cell.base.BaseWatchItemCell
+import com.tencent.watch.aio_impl.ui.cell.superface.WatchAniStickerGroupWidget
 import com.tencent.watch.aio_impl.ui.widget.AIOCellGroupWidget
 import momoi.anno.mixin.Mixin
-import momoi.mod.qqpro.enum.NTMsgType
+import momoi.mod.qqpro.enums.NTMsgType
 import momoi.mod.qqpro.hook.action.CurrentContact
 import momoi.mod.qqpro.lib.create
 import momoi.mod.qqpro.warp
@@ -84,7 +85,7 @@ object AIOCell {
             }.get()!!
         }
         fun recover(widget: AIOCellGroupWidget) {
-            views.get(widget)?.get()?.let {
+            views[widget]?.get()?.let {
                 it.visibility = View.GONE
                 if (!appendMode) {
                     widget.contentWidget.visibility = View.VISIBLE
@@ -95,13 +96,6 @@ object AIOCell {
 
     @Mixin
     abstract class HookCell : BaseWatchItemCell<WatchAIOMsgItem, View>() {
-        override fun reply_item(
-            p0: View?,
-            p1: WatchAIOMsgItem,
-            p2: Int,
-            p3: List<Any>
-        ) {}
-
         override fun i(
             view: View,
             item: WatchAIOMsgItem,
@@ -112,6 +106,9 @@ object AIOCell {
         ) {
             super.i(view, item, p3, p4, p5, p6)
             val widget = view as? AIOCellGroupWidget ?: return
+            if (widget is WatchAniStickerGroupWidget) {
+                return
+            }
             hooks.forEach {
                 if (item.d.msgType == it.type) {
                     val view = it.getOrCreate(widget)

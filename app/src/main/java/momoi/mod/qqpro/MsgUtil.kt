@@ -7,12 +7,9 @@ import com.tencent.qqnt.kernel.nativeinterface.TextElement
 import com.tencent.qqnt.msg.api.impl.MsgServiceImpl
 import com.tencent.qqnt.msg.api.impl.MsgUtilApiImpl
 import com.tencent.watch.aio_impl.ext.MsgListUtilKt
-import momoi.mod.qqpro.enum.ElementType
-import momoi.mod.qqpro.enum.NTMsgType
+import momoi.mod.qqpro.enums.ElementType
 import momoi.mod.qqpro.hook.view.MyDialogFragment
 import momoi.mod.qqpro.util.Json
-import momoi.mod.qqpro.util.Utils
-import java.util.UUID
 import kotlin.random.Random
 
 object MsgUtil {
