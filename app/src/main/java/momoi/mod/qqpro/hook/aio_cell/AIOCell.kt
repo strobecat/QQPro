@@ -106,9 +106,6 @@ object AIOCell {
         ) {
             super.i(view, item, p3, p4, p5, p6)
             val widget = view as? AIOCellGroupWidget ?: return
-            if (widget is WatchAniStickerGroupWidget) {
-                return
-            }
             hooks.forEach {
                 if (item.d.msgType == it.type) {
                     val view = it.getOrCreate(widget)

@@ -1,7 +1,9 @@
 package momoi.plugin.apkmixin
 
+import com.android.tools.smali.dexlib2.ValueType
 import com.android.tools.smali.dexlib2.iface.ClassDef
 import com.android.tools.smali.dexlib2.iface.DexFile
+import com.android.tools.smali.dexlib2.iface.value.TypeEncodedValue
 import com.android.tools.smali.dexlib2.immutable.ImmutableDexFile
 import com.android.tools.smali.dexlib2.rewriter.DexFileRewriter
 import com.android.tools.smali.dexlib2.rewriter.DexRewriter
@@ -79,6 +81,16 @@ class MixinProcessor(
                     )
                 info("Found Mixin Class: ${srcDef.type} to ${srcDef.superclass}")
                 mixinClassCount++
+            } else {
+                srcDef.methods.forEach { m ->
+                    m.annotations.forEach { a ->
+                        if (a.type == "Lmomoi/anno/mixin/StaticHook;") {
+                            val ref = (a.elements.first().value as TypeEncodedValue).value
+                            mixinClasses[srcDef] = targetDex.findClass(ref)!!
+                            mixinClassCount++
+                        }
+                    }
+                }
             }
         }
         lifecycle("Found $mixinClassCount mixin classes")
@@ -146,9 +158,6 @@ class MixinProcessor(
     private fun processMethodStaticHook(srcMethod: SmaliMethod) {
         if (srcMethod.body.contains("Lmomoi/anno/mixin/StaticHook;")) {
             srcMethod.modifiers.add("static")
-            if (srcMethod.name.endsWith("_")) {
-                srcMethod.name = srcMethod.name.removeSuffix("_")
-            } else throw IllegalArgumentException("StaticHook method must end with '_': ${srcMethod.name}")
         }
     }
 
