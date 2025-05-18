@@ -95,10 +95,8 @@ fun modifyClass(classData: ByteArray): ByteArray {
                 newName = "Rename${Random.nextInt()}"
             }
             var newAccess = access and Opcodes.ACC_FINAL.inv()
-            if (name == "<init>" && (access and Opcodes.ACC_PRIVATE) != 0) {
-                newAccess = newAccess or Opcodes.ACC_PUBLIC
-                newAccess = newAccess and Opcodes.ACC_PRIVATE.inv()
-            }
+            newAccess = newAccess or Opcodes.ACC_PUBLIC
+            newAccess = newAccess and Opcodes.ACC_PRIVATE.inv()
             return super.visitMethod(newAccess, newName, descriptor, signature, exceptions)
         }
 

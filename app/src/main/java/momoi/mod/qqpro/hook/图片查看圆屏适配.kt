@@ -14,9 +14,11 @@ class 图片查看圆屏适配(context: Context?, attributeSet: AttributeSet?) :
     context,
     attributeSet
 ) {
+    val longImgScale get() = actualHeight.toFloat() / displayRect.height() / (actualWidth.toFloat() / displayRect.width())
     override fun setMaximumScale(f: Float) {
-        super.setMaximumScale(f * 2)
+        super.setMaximumScale(longImgScale.coerceAtLeast(f * 1.5f) * 1.1f)
     }
+
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         if (Utils.isRoundScreen) {
