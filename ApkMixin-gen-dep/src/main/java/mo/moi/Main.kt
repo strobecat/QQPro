@@ -80,7 +80,8 @@ fun modifyClass(classData: ByteArray): ByteArray {
         val renameMethods = listOf(
             "K(Lcom/tencent/mvi/base/mvi/MviUIState;)V",
             "e(Lcom/tencent/qqnt/chats/core/adapter/itemdata/RecentContactChatItem;Lcom/tencent/qqnt/chats/core/adapter/holder/BaseChatViewHolder;)V",
-            "f(Lcom/tencent/qqnt/chats/core/adapter/itemdata/RecentContactChatItem;Lcom/tencent/qqnt/chats/core/adapter/holder/BaseChatViewHolder;Landroid/view/View\$OnClickListener;)V"
+            "f(Lcom/tencent/qqnt/chats/core/adapter/itemdata/RecentContactChatItem;Lcom/tencent/qqnt/chats/core/adapter/holder/BaseChatViewHolder;Landroid/view/View\$OnClickListener;)V",
+            "setOnLongClickListener(Landroid/view/View\$OnLongClickListener;)V"
         )
 
         override fun visitMethod(
