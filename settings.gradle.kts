@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 rootProject.name = "QQPro"
 include(":app")
 include(":ApkMixin-annotation")
+include(":ApkMixin-gen-dep")

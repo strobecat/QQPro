@@ -38,6 +38,7 @@ android {
 
 dependencies {
     implementation(project(":ApkMixin-annotation"))
+    compileOnly(libs.androidx.appcompat)
     compileOnly(fileTree("./libs"))
     compileOnly(libs.androidx.fragment)
     compileOnly(libs.androidx.constraintlayout)
