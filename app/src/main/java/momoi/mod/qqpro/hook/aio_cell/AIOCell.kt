@@ -9,6 +9,8 @@ import androidx.lifecycle.LifecycleOwner
 import com.tencent.watch.aio_impl.data.WatchAIOMsgItem
 import com.tencent.watch.aio_impl.ui.cell.base.BaseWatchItemCell
 import com.tencent.watch.aio_impl.ui.cell.superface.WatchAniStickerGroupWidget
+import com.tencent.watch.aio_impl.ui.cell.unsupport.WatchToQQViewMsgItem
+import com.tencent.watch.aio_impl.ui.cell.unsupport.WatchToQQViewWidget
 import com.tencent.watch.aio_impl.ui.widget.AIOCellGroupWidget
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.enums.NTMsgType
@@ -110,6 +112,7 @@ object AIOCell {
                 if (item.d.msgType == it.type) {
                     val view = it.getOrCreate(widget)
                     it.bind(widget, view, item.d as MsgRecordEx)
+                    (item as? WatchToQQViewMsgItem)?.o = ""
                 } else {
                     it.recover(widget)
                 }

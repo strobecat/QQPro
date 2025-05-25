@@ -52,7 +52,7 @@ private fun process(group: ViewGroup) {
         linear.paddingHorizontal(0.1f.vh)
         LinearScope(linear).add<View>()
             .width(FILL)
-            .height(0.2f.vh)
+            .height(0.18f.vh)
     }
     menuSort.forEach {
         items[it]?.let { item ->
@@ -67,7 +67,7 @@ private fun process(group: ViewGroup) {
     if (Utils.isRoundScreen) {
         LinearScope(linear).add<View>()
             .width(FILL)
-            .height(0.2f.vh)
+            .height(0.18f.vh)
     }
 }
 
