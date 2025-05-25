@@ -17,7 +17,7 @@ object MsgUtil {
     val msgUtilApi = MsgUtilApiImpl()
 
     fun summary(elements: List<MsgElement>): CharSequence {
-        if (elements[0].elementType == ElementType.GREY_TIP) {
+        if (elements.isEmpty() || elements[0].elementType == ElementType.GREY_TIP) {
             //subElementType == 1
             return "[原消息已被撤回]"
         }
@@ -62,6 +62,27 @@ object MsgUtil {
                 ele.elementType = ElementType.TEXT
                 ele.textElement = TextElement().apply {
                     content = Json(it.bytesData).str("prompt") ?: "[卡片信息]"
+                }
+            }
+            ele.faceElement?.let {
+                ele.faceElement = null
+                ele.elementType = ElementType.TEXT
+                ele.textElement = TextElement().apply {
+                    content = it.faceText
+                }
+            }
+            ele.marketFaceElement?.let {
+                ele.marketFaceElement = null
+                ele.elementType = ElementType.TEXT
+                ele.textElement = TextElement().apply {
+                    content = it.faceName
+                }
+            }
+            ele.faceBubbleElement?.let {
+                ele.faceBubbleElement = null
+                ele.elementType = ElementType.TEXT
+                ele.textElement = TextElement().apply {
+                    content = it.faceSummary
                 }
             }
         }
