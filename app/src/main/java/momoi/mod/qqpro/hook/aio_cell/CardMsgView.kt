@@ -8,6 +8,7 @@ import android.widget.TextView
 import com.tencent.qqnt.kernel.nativeinterface.ArkElement
 import loadPicUrl
 import momoi.mod.qqpro.Settings
+import momoi.mod.qqpro.hook.style.MyImageView
 import momoi.mod.qqpro.lib.FILL
 import momoi.mod.qqpro.lib.WRAP
 import momoi.mod.qqpro.lib.background
@@ -54,7 +55,7 @@ class CardMsgView(context: Context) : LinearLayout(context) {
             add<LinearLayout>()
                 .width(FILL)
                 .content {
-                    mIvIcon = add<ImageView>()
+                    mIvIcon = add<MyImageView>()
                         .size(WRAP, FILL)
                         .scaleType(ImageView.ScaleType.CENTER_CROP)
                     mTvTag = add<TextView>()

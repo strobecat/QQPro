@@ -64,6 +64,7 @@ object MsgUtil {
                     content = Json(it.bytesData).str("prompt") ?: "[卡片信息]"
                 }
             }
+            /*
             ele.faceElement?.let {
                 ele.faceElement = null
                 ele.elementType = ElementType.TEXT
@@ -71,6 +72,7 @@ object MsgUtil {
                     content = it.faceText
                 }
             }
+             */
             ele.marketFaceElement?.let {
                 ele.marketFaceElement = null
                 ele.elementType = ElementType.TEXT
@@ -78,6 +80,7 @@ object MsgUtil {
                     content = it.faceName
                 }
             }
+            /*
             ele.faceBubbleElement?.let {
                 ele.faceBubbleElement = null
                 ele.elementType = ElementType.TEXT
@@ -85,6 +88,7 @@ object MsgUtil {
                     content = it.faceSummary
                 }
             }
+            */
         }
         return MsgListUtilKt.a(elements)
     }
