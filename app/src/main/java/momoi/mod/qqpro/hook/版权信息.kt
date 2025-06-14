@@ -20,9 +20,10 @@ class 版权信息 : SelfFragment() {
         val result = super.Y(inflater, container, savedInstanceState)
         val tv = result.findViewById<TextView>(2114521808)
         tv.text = buildString {
-            appendLine("QQPro - v1.5")
+            appendLine("QQPro - v1.5fix")
             appendLine()
             appendLine("更新日志：")
+            appendLine("fix: 修复长按消息闪退问题")
             appendLine("修复回复有关的闪退bug")
             appendLine("现在有概率看见卡片消息的图片了")
             appendLine("聊天信息里的链接可以点开")
