@@ -20,19 +20,17 @@ class 版权信息 : SelfFragment() {
         val result = super.Y(inflater, container, savedInstanceState)
         val tv = result.findViewById<TextView>(2114521808)
         tv.text = buildString {
-            appendLine("QQPro - v1.4.1")
+            appendLine("QQPro - v1.5")
             appendLine()
             appendLine("更新日志：")
-            appendLine("现在可以展示卡片信息和跳转链接")
-            appendLine("大部分文本都兼容了缩放设置")
-            appendLine("优化了长图缩放效果")
-            appendLine("修复了回复消息内容显示问题")
-            appendLine("移除了跳转未读消息的滚动动画")
-            appendLine("修复圆屏长按菜单错位问题")
-            appendLine("对Hook代码层进行了一些调整")
+            appendLine("修复回复有关的闪退bug")
+            appendLine("现在有概率看见卡片消息的图片了")
+            appendLine("聊天信息里的链接可以点开")
+            appendLine("管理可以撤回群成员消息")
+            appendLine("聊天中现在显示群头衔和等级")
             appendLine()
             appendLine("交流群：392106734")
-            appendLine("2025/05/17")
+            appendLine("2025/06/14")
         }
         return result
     }

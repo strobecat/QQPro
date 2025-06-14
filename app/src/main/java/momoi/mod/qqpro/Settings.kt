@@ -6,7 +6,7 @@ import momoi.mod.qqpro.util.Utils
 
 object Settings {
     val sp: SharedPreferences = Utils.application.getSharedPreferences("qqpro", 0)
-    const val VERSION_CODE = 8
+    const val VERSION_CODE = 9
     val scale = FloatPref("scale", 0.9f)
     val chatScale = FloatPref("chatScale", 0.93f)
     val enableSmoothScroll = BooleanPref("enableSmoothScroll", false)
@@ -14,7 +14,13 @@ object Settings {
     val swapCenterKeyboard = BooleanPref("swapCenterKeyboard", false)
 
     private val moye = Utils.application.getSharedPreferences("wearqq", 0)
-    val text get() = moye.getString("voice_btn_text", "")!!
+    val text get() = moye.getString("voice_btn_text", "")?.let {
+        if (it == "QQ") {
+            ""
+        } else {
+            it
+        }
+    } ?: ""
 }
 
 abstract class Pref<T>(def: T) {
