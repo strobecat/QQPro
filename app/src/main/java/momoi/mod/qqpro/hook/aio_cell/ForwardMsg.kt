@@ -33,9 +33,10 @@ import momoi.mod.qqpro.lib.gravity
 import momoi.mod.qqpro.lib.id
 import momoi.mod.qqpro.lib.layoutParams
 import momoi.mod.qqpro.lib.linearLayout
-import momoi.mod.qqpro.lib.*
+import momoi.mod.qqpro.lib.margin
 import momoi.mod.qqpro.lib.padding
 import momoi.mod.qqpro.lib.paddingHorizontal
+import momoi.mod.qqpro.lib.size
 import momoi.mod.qqpro.lib.text
 import momoi.mod.qqpro.lib.textColor
 import momoi.mod.qqpro.lib.textSize
@@ -43,8 +44,8 @@ import momoi.mod.qqpro.lib.vertical
 import momoi.mod.qqpro.lib.width
 import momoi.mod.qqpro.removeAfter
 import momoi.mod.qqpro.showDialog
+import momoi.mod.qqpro.util.linkify
 import momoi.mod.qqpro.util.runOnUi
-import java.util.ArrayList
 
 class BigImageFragment(private val pic: PicElement) : MyDialogFragment() {
     override fun onCreateView(
@@ -138,6 +139,7 @@ class DetailFragment(private val contact: Contact, private val data: ForwardMsgD
                                                 .textSize(14f * Settings.chatScale.value)
                                                 .textColor(0xFF_FFFFFF.toInt())
                                                 .text(MsgUtil.summary(textElements))
+                                                .linkify()
                                             textElements.clear()
                                         }
                                     }

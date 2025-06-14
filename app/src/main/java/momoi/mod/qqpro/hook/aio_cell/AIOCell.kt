@@ -2,27 +2,19 @@ package momoi.mod.qqpro.hook.aio_cell
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.text.SpannedString
-import android.text.style.CharacterStyle
 import android.text.style.RelativeSizeSpan
-import android.text.util.Linkify
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
-import androidx.core.text.toSpanned
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import com.tencent.qqnt.kernel.nativeinterface.MarkdownElement
 import com.tencent.qqnt.kernel.nativeinterface.MemberInfo
 import com.tencent.qqnt.kernel.nativeinterface.MemberRole
-import com.tencent.qqnt.msg.KernelServiceUtil
 import com.tencent.watch.aio_impl.data.WatchAIOMsgItem
 import com.tencent.watch.aio_impl.ui.cell.base.BaseWatchItemCell
-import com.tencent.watch.aio_impl.ui.cell.superface.WatchAniStickerGroupWidget
 import com.tencent.watch.aio_impl.ui.cell.unsupport.WatchToQQViewMsgItem
-import com.tencent.watch.aio_impl.ui.cell.unsupport.WatchToQQViewWidget
 import com.tencent.watch.aio_impl.ui.widget.AIOCellGroupWidget
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.Colors
@@ -33,7 +25,7 @@ import momoi.mod.qqpro.hook.action.SelfContact
 import momoi.mod.qqpro.hook.action.isGroup
 import momoi.mod.qqpro.lib.RadiusBackgroundSpan
 import momoi.mod.qqpro.lib.create
-import momoi.mod.qqpro.util.Utils
+import momoi.mod.qqpro.util.linkify
 import momoi.mod.qqpro.warp
 import java.lang.ref.WeakReference
 import java.util.WeakHashMap
@@ -151,8 +143,7 @@ object AIOCell {
                 }
             }
             (widget.contentWidget as? TextView)?.let {
-                it.autoLinkMask = Linkify.WEB_URLS
-                Linkify.addLinks(it, Linkify.WEB_URLS)
+                it.linkify()
                 it.layoutParams?.let {
                     it.width = ViewGroup.LayoutParams.WRAP_CONTENT
                     it.height = ViewGroup.LayoutParams.WRAP_CONTENT
