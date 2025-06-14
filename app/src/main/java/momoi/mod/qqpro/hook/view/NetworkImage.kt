@@ -56,6 +56,7 @@ inline fun download(url: String, file: File, crossinline callback: (Boolean) -> 
             connection.connectTimeout = 60_000 // 60秒超时
             connection.readTimeout = 10_000
             connection.requestMethod = "GET"
+            connection.headerFields["User-Agent"] = listOf("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36")
             connection.doInput = true
             Utils.log("Download Image From: $url")
             connection.connect()

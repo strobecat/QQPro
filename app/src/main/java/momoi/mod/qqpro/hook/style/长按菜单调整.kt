@@ -59,7 +59,7 @@ private fun process(group: ViewGroup, msg: MsgRecord) {
     val items = mutableMapOf<String, View>()
     linear.forEach { item ->
         item.asGroup().forEachAll {
-            if (it is TextView) {
+            if (it is AppCompatTextView) {
                 items[it.text.toString()] = item
             }
         }
@@ -67,7 +67,7 @@ private fun process(group: ViewGroup, msg: MsgRecord) {
     linear.removeAllViews()
     LinearScope(linear).add<View>()
         .width(FILL)
-        .height(if (Utils.isRoundScreen) 0.2f.vh else 0)
+        .height(if (Utils.isRoundScreen) 0.16f.vh else 0)
     if (Utils.isRoundScreen) {
         linear.paddingHorizontal(0.1f.vh)
     }
@@ -107,7 +107,7 @@ private fun process(group: ViewGroup, msg: MsgRecord) {
     if (Utils.isRoundScreen) {
         LinearScope(linear).add<View>()
             .width(FILL)
-            .height(0.2f.vh)
+            .height(0.16f.vh)
     }
 }
 
