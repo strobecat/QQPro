@@ -1,18 +1,33 @@
 package momoi.mod.qqpro.hook.aio_cell
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.text.SpannedString
+import android.text.style.CharacterStyle
+import android.text.style.RelativeSizeSpan
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.text.buildSpannedString
+import androidx.core.text.inSpans
+import androidx.core.text.toSpanned
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import com.tencent.qqnt.kernel.nativeinterface.MemberInfo
+import com.tencent.qqnt.kernel.nativeinterface.MemberRole
+import com.tencent.qqnt.msg.KernelServiceUtil
 import com.tencent.watch.aio_impl.data.WatchAIOMsgItem
 import com.tencent.watch.aio_impl.ui.cell.base.BaseWatchItemCell
 import com.tencent.watch.aio_impl.ui.cell.superface.WatchAniStickerGroupWidget
 import com.tencent.watch.aio_impl.ui.widget.AIOCellGroupWidget
 import momoi.anno.mixin.Mixin
+import momoi.mod.qqpro.Colors
 import momoi.mod.qqpro.enums.NTMsgType
 import momoi.mod.qqpro.hook.action.CurrentContact
+import momoi.mod.qqpro.hook.action.CurrentMemberInfo
+import momoi.mod.qqpro.hook.action.SelfContact
+import momoi.mod.qqpro.hook.action.isGroup
+import momoi.mod.qqpro.lib.RadiusBackgroundSpan
 import momoi.mod.qqpro.lib.create
 import momoi.mod.qqpro.warp
 import java.lang.ref.WeakReference
@@ -21,6 +36,7 @@ import java.util.WeakHashMap
 object AIOCell {
     val AIOCellGroupWidget.contentWidget get() = this.getContentWidget<View>()!!
     val hooks = mutableListOf<Hook<*>>()
+
     init {
         addHook<ReplyView>(
             type = NTMsgType.REPLY,
@@ -47,6 +63,7 @@ object AIOCell {
             }
         )
     }
+
     inline fun <reified T : View> addHook(
         type: Int,
         noinline onBind: T.(MsgRecordEx, AIOCellGroupWidget) -> Unit,
@@ -76,6 +93,7 @@ object AIOCell {
             }
             onBind(view as T, msg, widget)
         }
+
         fun getOrCreate(widget: AIOCellGroupWidget): T {
             return views.getOrPut(widget) {
                 val view = createView(widget.context)
@@ -84,6 +102,7 @@ object AIOCell {
                 WeakReference(view)
             }.get()!!
         }
+
         fun recover(widget: AIOCellGroupWidget) {
             views[widget]?.get()?.let {
                 it.visibility = View.GONE
@@ -96,6 +115,7 @@ object AIOCell {
 
     @Mixin
     abstract class HookCell : BaseWatchItemCell<WatchAIOMsgItem, View>() {
+        @SuppressLint("SetTextI18n")
         override fun i(
             view: View,
             item: WatchAIOMsgItem,
@@ -106,6 +126,16 @@ object AIOCell {
         ) {
             super.i(view, item, p3, p4, p5, p6)
             val widget = view as? AIOCellGroupWidget ?: return
+            if (CurrentContact.isGroup) {
+                val raw = widget.getNickWidget<TextView>()?.text!!
+                CurrentMemberInfo.get(item.d.senderUid) {
+                    widget.post {
+                        if (widget.getNickWidget<TextView>()?.text == raw) {
+                            widget.getNickWidget<TextView>()?.text = it.toDisplay()
+                        }
+                    }
+                }
+            }
             hooks.forEach {
                 if (item.d.msgType == it.type) {
                     val view = it.getOrCreate(widget)
@@ -118,6 +148,62 @@ object AIOCell {
                 it.width = ViewGroup.LayoutParams.WRAP_CONTENT
                 it.height = ViewGroup.LayoutParams.WRAP_CONTENT
             }
+        }
+    }
+
+    private const val TYPE_OWNER = 1
+    private const val TYPE_ADMIN = 2
+    private const val TYPE_SPECIAL = 3
+    private const val TYPE_NORMAL = 0
+    private fun MemberInfo.toDisplay() = buildSpannedString {
+        val type = when (true) {
+            (role == MemberRole.OWNER) -> TYPE_OWNER
+            (role == MemberRole.ADMIN) -> TYPE_ADMIN
+            !memberSpecialTitle.isNullOrEmpty() -> TYPE_SPECIAL
+            else -> TYPE_NORMAL
+        }
+        val name = when (true) {
+            cardName.isNotEmpty() -> cardName
+            remark.isNotEmpty() -> remark
+            else -> nick
+        }
+        val isSelf = uid == SelfContact.peerUid
+        if (!isSelf) {
+            append(name)
+            append(" ")
+        }
+        inSpans(
+            RadiusBackgroundSpan(
+                bgColor = when (type) {
+                    TYPE_ADMIN -> Colors.NickTag.adminBg
+                    TYPE_OWNER -> Colors.NickTag.ownerBg
+                    TYPE_SPECIAL -> Colors.NickTag.specialBg
+                    else -> Colors.NickTag.normalBg
+                },
+                textColor = when (type) {
+                    TYPE_ADMIN -> Colors.NickTag.adminText
+                    TYPE_OWNER -> Colors.NickTag.ownerText
+                    TYPE_SPECIAL -> Colors.NickTag.specialText
+                    else -> Colors.NickTag.normalText
+                }
+            ),
+            RelativeSizeSpan(0.8f)
+        ) {
+            append("LV")
+            append(memberLevel.toString())
+            if (!memberSpecialTitle.isNullOrEmpty()) {
+                append(" ")
+                append(memberSpecialTitle)
+            } else {
+                when (type) {
+                    TYPE_OWNER -> append(" 群主")
+                    TYPE_ADMIN -> append(" 管理员")
+                }
+            }
+        }
+        if (isSelf) {
+            append(" ")
+            append(name)
         }
     }
 }
