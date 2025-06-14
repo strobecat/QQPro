@@ -29,7 +29,7 @@ object CurrentMemberInfo {
             arrayListOf(uid),
             false
         ) { _, _, result ->
-            val info = result.infos.values.first()
+            val info = result.infos.values.firstOrNull() ?: return@getMemberInfoForMqq
             map[uid] = info
             callback(info)
         }

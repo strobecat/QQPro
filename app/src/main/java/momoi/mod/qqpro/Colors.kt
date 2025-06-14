@@ -5,6 +5,7 @@ object Colors {
     const val replyBackground = 0x22_ffffff
     const val onSurface = 0xff_ffffff.toInt()
     const val onSurfaceTip = 0xff_999999.toInt()
+    const val btn = 0xff_1B9AF7.toInt()
 
     object NickTag {
         const val specialBg = 0xff_30263F.toInt()

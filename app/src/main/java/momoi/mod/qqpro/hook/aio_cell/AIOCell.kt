@@ -5,6 +5,7 @@ import android.content.Context
 import android.text.SpannedString
 import android.text.style.CharacterStyle
 import android.text.style.RelativeSizeSpan
+import android.text.util.Linkify
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -13,6 +14,7 @@ import androidx.core.text.inSpans
 import androidx.core.text.toSpanned
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import com.tencent.qqnt.kernel.nativeinterface.MarkdownElement
 import com.tencent.qqnt.kernel.nativeinterface.MemberInfo
 import com.tencent.qqnt.kernel.nativeinterface.MemberRole
 import com.tencent.qqnt.msg.KernelServiceUtil
@@ -31,6 +33,7 @@ import momoi.mod.qqpro.hook.action.SelfContact
 import momoi.mod.qqpro.hook.action.isGroup
 import momoi.mod.qqpro.lib.RadiusBackgroundSpan
 import momoi.mod.qqpro.lib.create
+import momoi.mod.qqpro.util.Utils
 import momoi.mod.qqpro.warp
 import java.lang.ref.WeakReference
 import java.util.WeakHashMap
@@ -147,9 +150,13 @@ object AIOCell {
                     it.recover(widget)
                 }
             }
-            (widget.contentWidget as? TextView)?.layoutParams?.let {
-                it.width = ViewGroup.LayoutParams.WRAP_CONTENT
-                it.height = ViewGroup.LayoutParams.WRAP_CONTENT
+            (widget.contentWidget as? TextView)?.let {
+                it.autoLinkMask = Linkify.WEB_URLS
+                Linkify.addLinks(it, Linkify.WEB_URLS)
+                it.layoutParams?.let {
+                    it.width = ViewGroup.LayoutParams.WRAP_CONTENT
+                    it.height = ViewGroup.LayoutParams.WRAP_CONTENT
+                }
             }
         }
     }
