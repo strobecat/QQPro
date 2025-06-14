@@ -12,6 +12,7 @@ import androidx.core.view.forEach
 import com.tencent.qqnt.kernel.nativeinterface.MemberRole
 import com.tencent.qqnt.kernel.nativeinterface.MsgRecord
 import com.tencent.qqnt.msg.KernelServiceUtil
+import com.tencent.watch.aio_impl.ui.cell.base.WatchAIOGroupWidgetItemCell
 import com.tencent.watch.aio_impl.ui.cell.text.WatchTextItemCell
 import com.tencent.watch.aio_impl.ui.menu.AIOLongClickMenuFragment
 import com.tencent.watch.aio_impl.ui.menu.MenuItemFactory
@@ -121,7 +122,7 @@ class 长按菜单调整(p0: (MenuItemFactory.ItemEnum) -> Unit, p1: String?) :
     ): View {
         val field = this.b.javaClass.getDeclaredField("b")
         field.isAccessible = true
-        val cell = field.get(this.b) as WatchTextItemCell
+        val cell = field.get(this.b) as WatchAIOGroupWidgetItemCell<*, *>
         return super.onCreateView(inflater, container, savedInstanceState).apply {
             this.asGroup().getChildAt(0).asGroup().let { group ->
                 process(group, cell.f()!!.d)
