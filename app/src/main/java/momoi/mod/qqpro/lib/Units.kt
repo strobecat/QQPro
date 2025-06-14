@@ -6,6 +6,7 @@ import android.util.TypedValue
 import momoi.mod.qqpro.util.Utils
 
 val Int.dp @SuppressLint("WrongConstant")
-get() = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, toFloat(), Utils.application.resources.displayMetrics).toInt()
+get() = dpf.toInt()
 
+val Int.dpf get() = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, toFloat(), Utils.application.resources.displayMetrics)
 val Float.vh get() = (this * Utils.heightPixels).toInt()

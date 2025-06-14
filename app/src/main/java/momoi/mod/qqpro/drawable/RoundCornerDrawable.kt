@@ -4,12 +4,12 @@ import android.content.Context
 import android.graphics.drawable.GradientDrawable
 import momoi.mod.qqpro.lib.GroupScope
 
-fun GroupScope.roundCornerDrawable(
+fun roundCornerDrawable(
     color: Int,
     radius: Float
 ) = roundCornerDrawable(color, radius, radius, radius, radius)
 
-fun GroupScope.roundCornerDrawable(
+fun roundCornerDrawable(
     color: Int,
     topLeftRadius: Float,
     topRightRadius: Float,
