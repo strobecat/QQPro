@@ -1,18 +1,15 @@
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Rect
+import android.net.Uri
 import android.widget.ImageView
 import com.tencent.qqnt.kernel.nativeinterface.PicElement
 import momoi.mod.qqpro.util.Utils
 import momoi.mod.qqpro.child
 import momoi.mod.qqpro.lib.bitmapDecodeFile
 import momoi.mod.qqpro.msg.getImageUrl
-import java.io.BufferedOutputStream
 import java.io.File
-import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.concurrent.thread
+import androidx.core.net.toUri
 
 // 抽取的加载图片 URL 的函数
 fun ImageView.loadPicUrl(url: String?, cacheFileName: String = "${System.currentTimeMillis() / 1000}${url.hashCode()}") = apply {
@@ -48,15 +45,19 @@ fun ImageView.loadPicElement(pic: PicElement) = apply {
     loadPicUrl(pic.getImageUrl(), pic.md5HexStr)
 }
 
-inline fun download(url: String, file: File, crossinline callback: (Boolean) -> Unit) {
+inline fun download(rawUrl: String, file: File, crossinline callback: (Boolean) -> Unit) {
     thread {
         var connection: HttpURLConnection? = null
+        val uri = rawUrl.toUri()
+        val url = if (uri.scheme.isNullOrEmpty()) {
+            URL("https://$rawUrl")
+        } else URL(rawUrl.replace("http://", "https://"))
         try {
-            connection = URL(url).openConnection() as HttpURLConnection
+            connection = url.openConnection() as HttpURLConnection
+            connection.instanceFollowRedirects = true
             connection.connectTimeout = 60_000 // 60秒超时
             connection.readTimeout = 10_000
             connection.requestMethod = "GET"
-            connection.headerFields["User-Agent"] = listOf("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36")
             connection.doInput = true
             Utils.log("Download Image From: $url")
             connection.connect()
@@ -72,7 +73,7 @@ inline fun download(url: String, file: File, crossinline callback: (Boolean) -> 
                 callback(true)
             } else {
                 callback(false)
-                Utils.log("Download Image Failed! $url")
+                Utils.log("Download Image Failed! ${connection.url}")
             }
         } catch (e: Exception) {
             callback(false)
