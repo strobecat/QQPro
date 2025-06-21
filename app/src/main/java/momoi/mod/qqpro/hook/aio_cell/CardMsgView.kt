@@ -15,19 +15,18 @@ import momoi.mod.qqpro.lib.background
 import momoi.mod.qqpro.lib.clickable
 import momoi.mod.qqpro.lib.content
 import momoi.mod.qqpro.lib.dp
-import momoi.mod.qqpro.lib.height
 import momoi.mod.qqpro.lib.margin
 import momoi.mod.qqpro.lib.marginVertical
 import momoi.mod.qqpro.lib.padding
 import momoi.mod.qqpro.lib.scaleType
 import momoi.mod.qqpro.lib.size
+import momoi.mod.qqpro.lib.text
 import momoi.mod.qqpro.lib.textColor
 import momoi.mod.qqpro.lib.textSize
 import momoi.mod.qqpro.lib.vertical
 import momoi.mod.qqpro.lib.width
 import momoi.mod.qqpro.util.Json
 import momoi.mod.qqpro.util.Utils
-import org.json.JSONObject
 
 class CardMsgView(context: Context) : LinearLayout(context) {
     private lateinit var mTvTitle: TextView
@@ -47,7 +46,8 @@ class CardMsgView(context: Context) : LinearLayout(context) {
                 .textSize(10f * Settings.chatScale.value)
                 .textColor(0xFF_CCCCCC.toInt())
             mIvPreview = add<ImageView>()
-               .width(FILL)
+                .width(FILL)
+                .scaleType(ImageView.ScaleType.FIT_XY)
             add<View>()
                 .size(width = FILL, height = 1)
                 .background(0xFF_AAAAAA.toInt())
@@ -61,6 +61,7 @@ class CardMsgView(context: Context) : LinearLayout(context) {
                     mTvTag = add<TextView>()
                         .textSize(9f * Settings.chatScale.value)
                         .textColor(0xFF_FFFFFF.toInt())
+                        .text(" ")
                         .weight(1f)
                         .margin(left = 2.dp)
                 }
