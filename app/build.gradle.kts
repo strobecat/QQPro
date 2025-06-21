@@ -48,7 +48,7 @@ dependencies {
 }
 
 apkMixin {
-    versionName = "1.5-fix"
+    versionName = "1.5.1"
     targetApk = "source.apk"
     useProcessorCountAsThreadCount = project.properties["useProcessorCountAsThreadCount"] == "true"
 
