@@ -9,14 +9,11 @@ import com.tencent.aio.base.chat.ChatPie
 import com.tencent.aio.base.mvi.part.MsgListUiState
 import com.tencent.aio.main.fragment.ChatFragment
 import com.tencent.aio.part.root.panel.content.firstLevel.msglist.mvx.intent.MsgListDataIntent
-import com.tencent.aio.part.root.panel.content.firstLevel.msglist.mvx.state.MsgListState
-import com.tencent.qqnt.kernel.nativeinterface.MsgRecord
 import com.tencent.watch.aio_impl.coreImpl.vb.WatchAIOListVB
 import com.tencent.watch.aio_impl.data.WatchAIOMsgItem
-import com.tencent.watch.aio_impl.ext.MsgListUtilKt
 import momoi.anno.mixin.Mixin
-import momoi.mod.qqpro.util.Utils
 import momoi.mod.qqpro.lib.Observable
+import momoi.mod.qqpro.util.Utils
 import java.util.LinkedList
 
 object CurrentMsgList {
@@ -60,7 +57,7 @@ object CurrentMsgList {
     fun findMsg(
         seq: Long,
         result: (WatchAIOMsgItem?) -> Unit,
-        repeatCount: Int = 10
+        repeatCount: Int = 1000
     ) {
         val msg = msgList.value.find { it.d.msgSeq == seq }
         if (msg == null) {
