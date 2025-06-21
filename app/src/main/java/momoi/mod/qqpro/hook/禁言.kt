@@ -4,35 +4,22 @@ import android.os.Bundle
 import android.text.InputType
 import android.view.Gravity
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import android.widget.Toast
-import com.tencent.qqnt.kernel.api.impl.GroupService
-import com.tencent.qqnt.kernel.nativeinterface.GroupMemberShutUpInfo
 import com.tencent.qqnt.kernel.nativeinterface.MemberRole
-import com.tencent.qqnt.msg.KernelServiceUtil
-import com.tencent.qqnt.watch.fs.GroupMemberSelectFragment
 import com.tencent.qqnt.watch.profile.ProfileData
 import com.tencent.qqnt.watch.profile.ui.ProfileCardFragment
-import com.tencent.qqnt.watch.troop.ui.member.ui.GroupMemberFragment
 import com.tencent.qqnt.watch.ui.componet.button.WatchButton
-import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.Colors
-import momoi.mod.qqpro.QQServices
 import momoi.mod.qqpro.drawable.roundCornerDrawable
 import momoi.mod.qqpro.findAll
-import momoi.mod.qqpro.forEachAll
-import momoi.mod.qqpro.hook.action.CurrentContact
-import momoi.mod.qqpro.hook.action.CurrentMemberInfo
+import momoi.mod.qqpro.hook.action.CurrentGroupMembers
 import momoi.mod.qqpro.hook.action.SelfContact
-import momoi.mod.qqpro.hook.action.isGroup
 import momoi.mod.qqpro.lib.FILL
 import momoi.mod.qqpro.lib.GroupScope
-import momoi.mod.qqpro.lib.LinearScope
 import momoi.mod.qqpro.lib.background
 import momoi.mod.qqpro.lib.clickable
 import momoi.mod.qqpro.lib.content
@@ -58,7 +45,7 @@ NTKernel                com.tencent.qqlite                   I  [SDK_LOG]seq(100
 class 苦呀嘻嘻 : ProfileCardFragment() {
     override fun Y(p0: LayoutInflater, p1: ViewGroup?, p2: Bundle?) = super.Y(p0, p1, p2)!!.apply {
         val uid = this@苦呀嘻嘻.requireArguments().getParcelable<ProfileData>("profile_data")!!.e
-        CurrentMemberInfo.get(SelfContact.peerUid) {
+        CurrentGroupMembers.get(SelfContact.peerUid) {
             if (it.role == MemberRole.OWNER || it.role == MemberRole.ADMIN) {
                 this.post {
                     val base = (this as ViewGroup).findAll { it is WatchButton } ?: return@post
@@ -91,7 +78,8 @@ class 苦呀嘻嘻 : ProfileCardFragment() {
                                         val hours = h.text.toString().toIntOrNull() ?: 0
                                         val minutes = m.text.toString().toIntOrNull() ?: 0
                                         val seconds = (days * 24 + hours) * 60 + minutes * 60
-                                        QQServices.group.setMemberShutUp(
+                                        /*
+                                        QQNT.group.setMemberShutUp(
                                             CurrentContact.peerUid.toLong(),
                                             arrayListOf(
                                                 GroupMemberShutUpInfo().apply {
@@ -101,6 +89,8 @@ class 苦呀嘻嘻 : ProfileCardFragment() {
                                             ),
                                             null
                                         )
+
+                                         */
                                     }
                             },
                         index

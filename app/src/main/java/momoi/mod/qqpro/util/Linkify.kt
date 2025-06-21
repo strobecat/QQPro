@@ -7,7 +7,6 @@ import android.text.style.ClickableSpan
 import android.text.style.URLSpan
 import android.view.View
 import android.widget.TextView
-import androidx.core.net.toUri
 import java.util.regex.Pattern
 
 fun TextView.linkify() {
@@ -26,12 +25,7 @@ fun TextView.linkify() {
         spannable.setSpan(
             object : ClickableSpan() {
                 override fun onClick(widget: View) {
-                    context?.startActivity(
-                        android.content.Intent(
-                            android.content.Intent.ACTION_VIEW,
-                            url.toUri()
-                        )
-                    )
+                    Utils.openUrl(url)
                 }
             },
             start,

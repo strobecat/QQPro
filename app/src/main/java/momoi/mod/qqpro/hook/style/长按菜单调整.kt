@@ -13,17 +13,15 @@ import com.tencent.qqnt.kernel.nativeinterface.MemberRole
 import com.tencent.qqnt.kernel.nativeinterface.MsgRecord
 import com.tencent.qqnt.msg.KernelServiceUtil
 import com.tencent.watch.aio_impl.ui.cell.base.WatchAIOGroupWidgetItemCell
-import com.tencent.watch.aio_impl.ui.cell.text.WatchTextItemCell
 import com.tencent.watch.aio_impl.ui.menu.AIOLongClickMenuFragment
 import com.tencent.watch.aio_impl.ui.menu.MenuItemFactory
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.Colors
-import momoi.mod.qqpro.util.Utils
 import momoi.mod.qqpro.asGroup
 import momoi.mod.qqpro.drawable.roundCornerDrawable
 import momoi.mod.qqpro.forEachAll
 import momoi.mod.qqpro.hook.action.CurrentContact
-import momoi.mod.qqpro.hook.action.CurrentMemberInfo
+import momoi.mod.qqpro.hook.action.CurrentGroupMembers
 import momoi.mod.qqpro.hook.action.SelfContact
 import momoi.mod.qqpro.hook.action.isGroup
 import momoi.mod.qqpro.lib.FILL
@@ -38,8 +36,10 @@ import momoi.mod.qqpro.lib.height
 import momoi.mod.qqpro.lib.padding
 import momoi.mod.qqpro.lib.paddingHorizontal
 import momoi.mod.qqpro.lib.text
+import momoi.mod.qqpro.lib.textSize
 import momoi.mod.qqpro.lib.vh
 import momoi.mod.qqpro.lib.width
+import momoi.mod.qqpro.util.Utils
 
 val menuSort = arrayOf(
     "回复",
@@ -73,7 +73,7 @@ private fun process(group: ViewGroup, msg: MsgRecord) {
         linear.paddingHorizontal(0.1f.vh)
     }
     if (CurrentContact.isGroup) {
-        CurrentMemberInfo.get(SelfContact.peerUid) {
+        CurrentGroupMembers.get(SelfContact.peerUid) {
             if (it.role == MemberRole.OWNER || it.role == MemberRole.ADMIN) {
                 linear.post {
                     linear.addView(
@@ -82,6 +82,7 @@ private fun process(group: ViewGroup, msg: MsgRecord) {
                             .gravity(Gravity.CENTER)
                             .padding(6.dp)
                             .text("撤回")
+                            .textSize(16f)
                             .background(roundCornerDrawable(
                                 color = Colors.replyBackground,
                                 radius = 16.dpf
@@ -89,7 +90,6 @@ private fun process(group: ViewGroup, msg: MsgRecord) {
                             .clickable {
                                 KernelServiceUtil.c()?.recallMsg(CurrentContact, msg.msgId, null)
                             }
-                        , 1
                     )
                 }
             }

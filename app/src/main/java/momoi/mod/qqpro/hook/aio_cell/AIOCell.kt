@@ -20,7 +20,7 @@ import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.Colors
 import momoi.mod.qqpro.enums.NTMsgType
 import momoi.mod.qqpro.hook.action.CurrentContact
-import momoi.mod.qqpro.hook.action.CurrentMemberInfo
+import momoi.mod.qqpro.hook.action.CurrentGroupMembers
 import momoi.mod.qqpro.hook.action.SelfContact
 import momoi.mod.qqpro.hook.action.isGroup
 import momoi.mod.qqpro.lib.RadiusBackgroundSpan
@@ -83,6 +83,7 @@ object AIOCell {
         val appendMode: Boolean
     ) {
         private val views = WeakHashMap<AIOCellGroupWidget, WeakReference<T>>()
+        @Suppress("UNCHECKED_CAST")
         fun bind(widget: AIOCellGroupWidget, view: View, msg: MsgRecordEx) {
             view.visibility = View.VISIBLE
             if (!appendMode) {
@@ -125,7 +126,7 @@ object AIOCell {
             val widget = view as? AIOCellGroupWidget ?: return
             if (CurrentContact.isGroup) {
                 val raw = widget.getNickWidget<TextView>()?.text!!
-                CurrentMemberInfo.get(item.d.senderUid) {
+                CurrentGroupMembers.get(item.d.senderUid) {
                     widget.post {
                         if (widget.getNickWidget<TextView>()?.text == raw) {
                             widget.getNickWidget<TextView>()?.text = it.toDisplay()
@@ -169,7 +170,7 @@ object AIOCell {
             else -> nick
         }
         val isSelf = uid == SelfContact.peerUid
-        if (!isSelf) {
+        if (isSelf) {
             append(name)
             append(" ")
         }
@@ -202,7 +203,7 @@ object AIOCell {
                 }
             }
         }
-        if (isSelf) {
+        if (!isSelf) {
             append(" ")
             append(name)
         }
