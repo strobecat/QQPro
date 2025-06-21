@@ -22,17 +22,18 @@ class 版权信息 : SelfFragment() {
         val result = super.Y(inflater, container, savedInstanceState)
         val tv = result.findViewById<TextView>(2114521808)
         tv.text = buildString {
-            appendLine("QQPro - v1.6")
+            appendLine("QQPro - v1.5.1")
             appendLine()
             appendLine("更新日志：")
             appendLine("优化回复消息溯源")
-            appendLine("优化等级头衔相关内容")
+            appendLine("更换等级头衔相关内容接口")
             appendLine("调整管理撤回按钮位置")
             appendLine("调整等级头衔位置")
-            appendLine("修复卡片消息图片尺寸问题")
+            appendLine("也许修复卡片消息图片尺寸问题")
+            appendLine("[有人@我]但是bug有点多，就这样吧")
             appendLine()
             appendLine("交流群：392106734")
-            appendLine("2025/06/14")
+            appendLine("2025/06/22")
         }
         return result
     }

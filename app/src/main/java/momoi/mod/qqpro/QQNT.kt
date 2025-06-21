@@ -9,7 +9,7 @@ object QQNT {
     object Group {
         inline fun getMemberList(
             groupId: Long,
-            force: Boolean = false,
+            force: Boolean = true,
             crossinline callback: (GroupMemberListResult) -> Unit
         ) {
             groupService.getAllMemberList(groupId, force) { _, _, result ->

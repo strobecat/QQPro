@@ -1,25 +1,21 @@
 package momoi.mod.qqpro.hook.action
 
-import android.content.Context
-import com.tencent.qqnt.chats.api.impl.ChatsUtilImpl
-import com.tencent.qqnt.chats.core.adapter.holder.RecentContactItemHolder
-import com.tencent.qqnt.chats.core.adapter.itemdata.BaseChatItem
 import com.tencent.qqnt.chats.core.adapter.itemdata.RecentContactChatItem
-import com.tencent.qqnt.chats.data.converter.ChatsItemConverter
 import com.tencent.qqnt.kernel.nativeinterface.RecentContactInfo
 import com.tencent.qqnt.watch.chat.list.WatchRecentContactHolder
 import com.tencent.qqnt.watch.chat.list.WatchRecentItemBuilder
 import momoi.anno.mixin.Mixin
 import momoi.mod.qqpro.util.Utils
-import mqq.app.AppRuntime
 
 object RecentContacts {
     val map = mutableMapOf<String, Data>()
     fun get(peerUin: String?) = map[peerUin]
     class Data(
         val raw: RecentContactInfo,
-        val unreadCntCached: Int
-    )
+        val unreadCntCached: Int,
+    ) {
+        val atType get() = raw.atType
+    }
 
     @Mixin
     abstract class Hook : WatchRecentItemBuilder() {
